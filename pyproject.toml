@@ -1,7 +1,79 @@
 [project]
 name = "pytoolsmith"
 version = "0.1.0"
-description = "Add your description here"
+description = "A lightweight Python library that simplifies the process of exposing functions as tools for Large Language Models"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+license = { text = "MIT" }
+authors = [
+    { name = "Zach Cloud", email = "me@zachb.cloud" },
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    # Add your dependencies here
+    "pydantic==2.10.6"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.0"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/zachrobo1/pytoolsmith"
+"Bug Tracker" = "https://github.com/zachrobo1/pytoolsmith/issues"
+
+
+[tool.ruff]
+target-version = "py311"
+
+
+# Same as Black.
+line-length = 88
+
+[tool.ruff.lint]
+# Enable Pycodestyle (`E`) and Pyflakes (`F`)
+select = ["E", "F", "I"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["A", "B", "C", "D", "E", "F", "I"]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["pytoolsmith"]
