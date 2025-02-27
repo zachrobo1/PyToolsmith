@@ -15,7 +15,9 @@ classifiers = [
 ]
 dependencies = [
     # Add your dependencies here
-    "pydantic==2.10.6"
+    "pydantic==2.10.6",
+    "anthropic==0.47.1",
+    "openai==1.60.0"
 ]
 
 [project.optional-dependencies]
