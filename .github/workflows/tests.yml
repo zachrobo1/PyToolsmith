@@ -28,7 +28,7 @@ jobs:
         run: make setup-test
 
       - name: Run tests with PYTHONPATH
-        run: make test-with-coverage
+        run: make test-in-ci
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -37,12 +37,5 @@ jobs:
           fail_ci_if_error: true
           verbose: true
           token: ${{secrets.CODECOV_TOKEN}}
-
-      - name: Add coverage comment to PR
-        uses: marocchino/sticky-pull-request-comment@v2
-        if: github.event_name == 'pull_request'
-        with:
-          recreate: true
-          path: coverage.xml
 
 

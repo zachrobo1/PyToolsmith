@@ -2,7 +2,9 @@
 
 __version__ = "0.1.0"
 
-from .tool_definition import ToolDefinition, ToolParameters
+from . import config
+from .tool_definition import ToolDefinition
 from .tool_library import ToolLibrary
+from .tool_parameters import ToolParameters
 
-__all__ = [ToolLibrary, ToolDefinition, ToolParameters]
+__all__ = [ToolLibrary, ToolDefinition, ToolParameters, config]

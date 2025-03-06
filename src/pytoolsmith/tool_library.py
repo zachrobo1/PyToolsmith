@@ -1,9 +1,12 @@
 from .tool_definition import ToolDefinition
+from .types.bedrock_types import (
+    AwsBedrockConverseToolConfig,
+    AwsBedrockToolSpecListObject,
+)
 
 
 class ToolLibrary:
-    def __init__(self, injectable_parameters: list[str]):
-        self._injectable_parameters = injectable_parameters
+    def __init__(self):
         self._tools: dict[str, ToolDefinition] = {}
 
     def add_tool(self, tool: ToolDefinition):
@@ -12,28 +15,27 @@ class ToolLibrary:
 
         self._tools[tool.name] = tool
 
+    def to_openai(self):
+        return [t.build_json_schema().to_openai() for t in self._tools.values()]
+
+    def to_anthropic(self, use_cache_control: bool = False):
+        return [
+            t.build_json_schema().to_anthropic(use_cache_control=use_cache_control)
+            for t in self._tools.values()
+        ]
+
+    def to_bedrock(self) -> AwsBedrockConverseToolConfig:
+        return AwsBedrockConverseToolConfig(
+            tools=[
+                AwsBedrockToolSpecListObject(
+                    toolSpec=t.build_json_schema().to_bedrock()
+                )
+                for t in self._tools.values()
+            ]
+        )
+
     # def call_tool(self, tool_name: str, llm_parameters: dict[str, Any], injected_parameters: dict[str, Any]):
     #     if tool_name not in self._tools:
     #         raise ValueError(f"No such tool: {tool_name}")
     #
     #     return self._tools[tool_name].call_tool(llm_parameters, injected_parameters)
-
-
-def test_func(a: int, b: bool) -> int:
-    """
-    A test function to test.
-    Args:
-        a: An int
-        b: A bool
-
-    Returns: Sum of int and bool ha ha ha
-
-    """
-    return a + int(b)
-
-
-if __name__ == "__main__":
-    library = ToolLibrary(injectable_parameters=["t_id", "user_id"])
-    tool = ToolDefinition(function=test_func)
-
-    library.add_tool(tool)

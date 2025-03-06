@@ -1,10 +1,6 @@
-from bson import ObjectId
-import datetime
-from enum import EnumType
 import inspect
-from pydantic import BaseModel
-from types import GenericAlias, NoneType, UnionType
-
+from enum import EnumType
+from types import GenericAlias, UnionType
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
@@ -15,34 +11,16 @@ from typing import (
     get_args,
     get_origin,
 )
-from typing_extensions import TypeVar
-import uuid
 
-_TYPE_MAPPING: dict[type, str] = {
-    str: "string",
-    int: "integer",
-    float: "number",
-    dict: "object",
-    list: "array",
-    bool: "boolean",
-    NoneType: "null",
-    ObjectId: "string",
-    BaseModel: "object",
-    datetime.datetime: "string",
-    uuid.UUID: "string",
-}
+from pydantic import BaseModel
+from typing_extensions import TypeVar
+
+from .config import get_format_map
+from .config.mappings import get_type_map
+from .tool_parameters import ToolParameters
 
 # TODO: figure out how to type this so response type is clear if it's a string or a dict.
 R = TypeVar("R", dict, str, list[str])
-
-
-class ToolParameters(BaseModel):
-    """Parameters extracted from the tool definition."""
-
-    input_properties: dict[str, Any]
-    required_parameters: list[str]
-    name: str
-    description: str
 
 
 class ToolDefinition(BaseModel):
@@ -167,8 +145,12 @@ class ToolDefinition(BaseModel):
                 enums.extend(get_args(param_type))
             elif issubclass(param_type, BaseModel):
                 schema_dict.update(param_type.model_json_schema())
-            elif issubclass(param_type, datetime.datetime):
-                schema_dict["format"] = "date-time"
+            else:
+                # Handle additional format updates.
+                for formattable_type, format_value in get_format_map().items():
+                    if issubclass(param_type, formattable_type):
+                        schema_dict["format"] = format_value
+                        break
 
             if enums:
                 schema_dict["enum"] = enums
@@ -269,16 +251,13 @@ class ToolDefinition(BaseModel):
         if isinstance(param_type, _LiteralGenericAlias):
             param_type = [type(arg) for arg in get_args(param_type)][0]
 
-        if issubclass(param_type, ObjectId):
-            param_type = ObjectId
-
         if issubclass(param_type, BaseModel):
             param_type = BaseModel
 
         if isinstance(param_type, EnumType):
             param_type = [type(enum.value) for enum in param_type][0]
 
-        return _TYPE_MAPPING[param_type]
+        return get_type_map()[param_type]
 
     @staticmethod
     def _strip_aliases(param_type: type) -> type:
