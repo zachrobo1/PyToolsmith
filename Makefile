@@ -1,4 +1,4 @@
-.PHONY: reformat
+.PHONY: reformat, setup-deps, setup-test, test
 
 reformat:
 	uv run ruff check --fix .
