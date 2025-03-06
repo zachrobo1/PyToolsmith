@@ -364,13 +364,13 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "anthropic" },
-    { name = "bson" },
     { name = "openai" },
     { name = "pydantic" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "bson" },
     { name = "coverage", extra = ["toml"] },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -380,13 +380,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "anthropic", specifier = "==0.47.1" },
-    { name = "bson", specifier = "==0.5.10" },
     { name = "openai", specifier = "==1.60.0" },
     { name = "pydantic", specifier = "==2.10.6" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "bson", specifier = "==0.5.10" },
     { name = "coverage", extras = ["toml"], specifier = "==7.3.2" },
     { name = "pytest", specifier = "==7.4.0" },
     { name = "pytest-cov", specifier = "==4.1.0" },

@@ -6,7 +6,9 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-_ACCEPTED_TYPES = Literal["string", "integer", "null", "object", "array", "boolean", "number"]
+_ACCEPTED_TYPES = Literal[
+    "string", "integer", "null", "object", "array", "boolean", "number"
+]
 
 _DEFAULT_TYPE_MAP: dict[type, _ACCEPTED_TYPES] = {
     str: "string",
@@ -24,7 +26,7 @@ _DEFAULT_TYPE_MAP: dict[type, _ACCEPTED_TYPES] = {
 
 _DEFAULT_FORMAT_MAP: dict[type, str] = {
     datetime.datetime: "date-time",
-    uuid.UUID: "uuid"
+    uuid.UUID: "uuid",
 }
 """Default format map to use."""
 

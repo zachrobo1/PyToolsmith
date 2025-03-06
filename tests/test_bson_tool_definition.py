@@ -15,8 +15,8 @@ def test_bson_tool_definition():
     schema = tool_def.build_json_schema()
 
     assert schema == ToolParameters(
-        input_properties={'test_id': {'type': 'string', "format": "objectId"}},
+        input_properties={"test_id": {"type": "string", "format": "objectId"}},
         required_parameters=["test_id"],
         name="func_to_test",
-        description=""
+        description="",
     )

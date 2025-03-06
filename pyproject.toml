@@ -79,8 +79,6 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.isort]
 known-first-party = ["pytoolsmith"]
 force-sort-within-sections = true
-# Add import headings for clearer organization
-section-order = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 # Automatically combine import statements from the same module
 combine-as-imports = true
 
