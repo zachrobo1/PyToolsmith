@@ -27,13 +27,6 @@ jobs:
       - name: Setup test environment
         run: make setup-test
 
-      - name: Debug package installation
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -la
-          python -c "import sys; print(sys.path)"
-          pip list | grep pytoolsmith
-
       - name: Run tests with PYTHONPATH
         run: |
           PYTHONPATH=$PYTHONPATH:$(pwd) make test
