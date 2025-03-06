@@ -7,7 +7,7 @@ setup-deps:
 	uv sync --frozen
 
 setup-test:
-	uv run pip install -e .
+	uv pip install -e .
 
 test:
 	uv run pytest tests
