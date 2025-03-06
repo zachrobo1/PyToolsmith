@@ -25,18 +25,16 @@ dependencies = [
 dev = [
     "ruff>=0.9.9",
     "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    "coverage[toml]==7.3.2"
 ]
 
 [project.urls]
 "Homepage" = "https://github.com/zachrobo1/pytoolsmith"
 "Bug Tracker" = "https://github.com/zachrobo1/pytoolsmith/issues"
 
-[project.scripts]
-test = "pytest:test"
-
 [tool.ruff]
 target-version = "py311"
-
 
 # Same as Black.
 line-length = 88
@@ -78,9 +76,6 @@ exclude = [
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-
-
-
 [tool.ruff.lint.isort]
 known-first-party = ["pytoolsmith"]
 force-sort-within-sections = true
@@ -88,3 +83,18 @@ force-sort-within-sections = true
 section-order = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 # Automatically combine import statements from the same module
 combine-as-imports = true
+
+# Add coverage configuration
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "pass",
+    "raise ImportError",
+]

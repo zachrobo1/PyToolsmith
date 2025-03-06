@@ -28,6 +28,5 @@ jobs:
         run: make setup-test
 
       - name: Run tests with PYTHONPATH
-        run: |
-          PYTHONPATH=$PYTHONPATH:$(pwd) make test
+        run: make test-with-coverage
 
