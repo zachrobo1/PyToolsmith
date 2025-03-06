@@ -4,7 +4,6 @@ from enum import StrEnum, auto
 from typing import Literal
 
 from pydantic import BaseModel
-from pytest import mark
 
 from pytoolsmith import ToolDefinition, ToolParameters
 
@@ -93,27 +92,6 @@ def test_build_tool_parameter():
             )
             == result
     )
-
-
-@mark.skip(reason="Not implemented yet")
-def test_call_tool():
-    tool = ToolDefinition(
-        function=_get_part_work_history_test_func,
-        injected_parameters=["t_id"],
-        additional_parameters={"k": {"minimum": 1}},
-    )
-
-    # Test that the function is called
-    result = tool.call_tool(
-        llm_parameters={
-            "ptype_id": uuid.UUID(),
-            "latest": True,
-            "optional_dict": {},
-        },
-        library_parameters={"t_id": BASE_TENANT_ID},
-    )
-
-    assert result == ["a", "b"]
 
 
 def _enum_func(
@@ -305,6 +283,6 @@ def test_build_tool_for_list_of_items():
                 },
                 required_parameters=["int_list", "model_list"],
                 description="",
-            ).dict()
-            == result.dict()
+            )
+            == result
     )

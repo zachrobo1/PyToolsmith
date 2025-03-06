@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from typing import Literal
+
+from pydantic import BaseModel, Field
 
 
 class AwsBedrockToolInputSchema(BaseModel):
@@ -13,8 +14,6 @@ class AwsBedrockToolInputSchema(BaseModel):
 
 
 class AwsBedrockToolSchemaJson(BaseModel):
-    """Bedrock insists that we have this intermediate step :)"""
-
     json_val: AwsBedrockToolInputSchema = Field(
         alias="json"
     )  # json as a name is reserved...
