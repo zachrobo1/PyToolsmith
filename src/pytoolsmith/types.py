@@ -1,6 +1,5 @@
+from pydantic import BaseModel, Field
 from typing import Literal
-
-from pydantic import Field, BaseModel
 
 
 class AwsBedrockToolInputSchema(BaseModel):
@@ -37,4 +36,5 @@ class AwsBedrockToolSpecListObject(BaseModel):
 
 class AwsBedrockConverseToolConfig(BaseModel):
     """What gets passed into Bedrock to configure the tools available to the LLM"""
+
     tools: list[AwsBedrockToolSpecListObject]

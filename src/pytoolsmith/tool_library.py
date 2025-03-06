@@ -1,10 +1,7 @@
-from typing import Any
-
-from src.pytoolsmith.tool_definition import ToolDefinition
+from .tool_definition import ToolDefinition
 
 
 class ToolLibrary:
-
     def __init__(self, injectable_parameters: list[str]):
         self._injectable_parameters = injectable_parameters
         self._tools: dict[str, ToolDefinition] = {}

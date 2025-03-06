@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from pydantic import BaseModel
 from pytest import mark
-from src.pytoolsmith import ToolDefinition, ToolParameters
+from pytoolsmith import ToolDefinition, ToolParameters
 from typing import Literal
 import uuid
 
@@ -24,11 +24,11 @@ BASE_TENANT_ID = uuid.uuid4()
 
 
 def _get_part_work_history_test_func(
-    t_id: uuid.UUID,
-    ptype_id: uuid.UUID,
-    latest: bool,
-    k: int = 10,
-    optional_dict: dict[str, str] | None = None,
+        t_id: uuid.UUID,
+        ptype_id: uuid.UUID,
+        latest: bool,
+        k: int = 10,
+        optional_dict: dict[str, str] | None = None,
 ) -> list[str]:
     """
     Get the latest history of work for a part type.
@@ -77,7 +77,7 @@ def test_build_tool_parameter():
             "k": {
                 "type": "integer",
                 "description": "Number to return. Include some other text, that will overflow to the "
-                "next line. This is a pretty long line that should be wrapped.",
+                               "next line. This is a pretty long line that should be wrapped.",
                 "default": 10,
                 "minimum": 1,
             },
@@ -113,9 +113,9 @@ def test_call_tool():
 
 
 def _enum_func(
-    ts: datetime,
-    part_type_class_1: PtypeClass,
-    part_type_class_2: PtypeClass | None = None,
+        ts: datetime,
+        part_type_class_1: PtypeClass,
+        part_type_class_2: PtypeClass | None = None,
 ) -> str:
     print(f"Its {ts}")
     return str(part_type_class_1 == part_type_class_2)
@@ -181,8 +181,8 @@ def test_build_tool_for_literal():
 
 
 def _pydantic_func(
-    contact_info: PersonInfo,
-    contact_info_2: PersonInfo | None = None,
+        contact_info: PersonInfo,
+        contact_info_2: PersonInfo | None = None,
 ):
     print(f"The person's name is {contact_info.first_name} {contact_info.last_name}")
     print(
@@ -231,7 +231,7 @@ def test_build_tool_for_pydantic_model():
                     },
                     "phone": {
                         "description": "Phone number. Must begin with +, have the country code, and be "
-                        "between 10 and 20 digits. Used for Two Factor Auth.",
+                                       "between 10 and 20 digits. Used for Two Factor Auth.",
                         "search": {
                             "ignore_case": True,
                             "match_partial": True,
@@ -280,7 +280,7 @@ def test_build_tool_for_pydantic_model():
                             },
                             "phone": {
                                 "description": "Phone number. Must begin with +, have the country code, "
-                                "and be between 10 and 20 digits. Used for Two Factor Auth.",
+                                               "and be between 10 and 20 digits. Used for Two Factor Auth.",
                                 "search": {
                                     "ignore_case": True,
                                     "match_partial": True,

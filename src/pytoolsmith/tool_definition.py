@@ -1,8 +1,10 @@
+from bson import ObjectId
 import datetime
-import inspect
-import uuid
 from enum import EnumType
+import inspect
+from pydantic import BaseModel
 from types import GenericAlias, NoneType, UnionType
+
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
@@ -13,10 +15,8 @@ from typing import (
     get_args,
     get_origin,
 )
-
-from bson import ObjectId
-from pydantic import BaseModel
 from typing_extensions import TypeVar
+import uuid
 
 _TYPE_MAPPING: dict[type, str] = {
     str: "string",
