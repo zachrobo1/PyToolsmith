@@ -3,8 +3,11 @@ import uuid
 
 import pytest
 from anthropic import Anthropic
+from dotenv import load_dotenv
 
-from pytoolsmith import ToolLibrary, ToolDefinition
+from pytoolsmith import ToolDefinition, ToolLibrary
+
+load_dotenv()
 
 
 @pytest.fixture

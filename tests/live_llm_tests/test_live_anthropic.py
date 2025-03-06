@@ -15,7 +15,8 @@ def test_tool_library_for_anthropic(
         model="claude-3-7-sonnet-latest",
         messages=[
             MessageParam(
-                role="user", content=[TextBlockParam(text="What can you do for me?", type="text")]
+                role="user",
+                content=[TextBlockParam(text="What can you do for me?", type="text")],
             )
         ],
         max_tokens=100,

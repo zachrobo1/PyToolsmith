@@ -7,10 +7,10 @@ setup-deps:
 	uv sync --frozen
 
 setup-test:
-	uv pip install -e .
+	uv sync --dev && uv pip install -e .
 
 test:
 	uv run pytest tests/
 
-test-with-coverage:
-	uv run pytest --cov=src/pytoolsmith --cov-report=xml:coverage.xml --cov-report=term tests/
+test-in-ci:
+	uv run pytest --cov=src/pytoolsmith --cov-report=xml:coverage.xml --cov-report=term -k "not llm_test" tests/

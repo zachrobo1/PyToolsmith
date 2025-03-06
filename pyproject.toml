@@ -27,6 +27,7 @@ dev = [
     "bson==0.5.10",
     "anthropic==0.47.1",
     "openai==1.60.0",
+    "python-dotenv==1.0.1",
 ]
 
 [project.urls]

@@ -28,7 +28,7 @@ jobs:
         run: make setup-test
 
       - name: Run tests with PYTHONPATH
-        run: make test-with-coverage
+        run: make test-in-ci
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
