@@ -1,23 +1,22 @@
 import datetime
 import inspect
-import json
+import uuid
 from enum import EnumType
-from types import NoneType, UnionType, GenericAlias
-
-from bson import ObjectId
-from pydantic import BaseModel
-from typing_extensions import TypeVar
-
+from types import GenericAlias, NoneType, UnionType
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
-    Literal,
+    Callable,
     NewType,
     _LiteralGenericAlias,
     _UnionGenericAlias,
     get_args,
-    get_origin, Callable,
+    get_origin,
 )
+
+from bson import ObjectId
+from pydantic import BaseModel
+from typing_extensions import TypeVar
 
 _TYPE_MAPPING: dict[type, str] = {
     str: "string",
@@ -30,14 +29,16 @@ _TYPE_MAPPING: dict[type, str] = {
     ObjectId: "string",
     BaseModel: "object",
     datetime.datetime: "string",
+    uuid.UUID: "string",
 }
 
 # TODO: figure out how to type this so response type is clear if it's a string or a dict.
-R = TypeVar("R", dict | str)
+R = TypeVar("R", dict, str, list[str])
 
 
 class ToolParameters(BaseModel):
     """Parameters extracted from the tool definition."""
+
     input_properties: dict[str, Any]
     required_parameters: list[str]
     name: str
@@ -47,7 +48,7 @@ class ToolParameters(BaseModel):
 class ToolDefinition(BaseModel):
     """Defines a tool to be used for an LLM conversation."""
 
-    function: Callable[[Any, ...], R]
+    function: Callable[..., R]
     """The function to call."""
 
     injected_parameters: list[str] = []
@@ -165,11 +166,7 @@ class ToolDefinition(BaseModel):
                 # Handle literals
                 enums.extend(get_args(param_type))
             elif issubclass(param_type, BaseModel):
-                schema_dict.update(
-                    **json.loads(
-                        param_type.schema_json()
-                    )  # Do this to make everything json-serializable
-                )
+                schema_dict.update(param_type.model_json_schema())
             elif issubclass(param_type, datetime.datetime):
                 schema_dict["format"] = "date-time"
 
@@ -204,9 +201,6 @@ class ToolDefinition(BaseModel):
         """
         Extracts argument descriptions from a Google-style docstring.
 
-        Args:
-            docstring (str): The docstring to parse.
-
         Returns:
             dict: A dictionary mapping argument names to their descriptions.
         """
@@ -222,7 +216,9 @@ class ToolDefinition(BaseModel):
 
         # Find the Args section
         try:
-            args_start = next(i for i, line in enumerate(lines) if line.strip() == "Args:")
+            args_start = next(
+                i for i, line in enumerate(lines) if line.strip() == "Args:"
+            )
         except StopIteration:
             return arg_descriptions
 
@@ -260,7 +256,9 @@ class ToolDefinition(BaseModel):
 
         # Add the last argument
         if current_arg:
-            arg_descriptions[current_arg] = "".join(current_description).replace("\n", "")
+            arg_descriptions[current_arg] = "".join(current_description).replace(
+                "\n", ""
+            )
 
         return arg_descriptions
 

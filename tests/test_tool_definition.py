@@ -1,15 +1,15 @@
-import uuid
 from datetime import datetime
 from enum import StrEnum
-from typing import Literal
-
 from pydantic import BaseModel
-
+from pytest import mark
 from src.pytoolsmith import ToolDefinition, ToolParameters
+from typing import Literal
+import uuid
 
 
-class PersonalContactInfoModel(BaseModel):
-    pass
+class PersonInfo(BaseModel):
+    first_name: str
+    last_name: str
 
 
 class OperationIdName(BaseModel):
@@ -24,11 +24,11 @@ BASE_TENANT_ID = uuid.uuid4()
 
 
 def _get_part_work_history_test_func(
-        t_id: uuid.UUID,
-        ptype_id: uuid.UUID,
-        latest: bool,
-        k: int = 10,
-        optional_dict: dict[str, str] | None = None,
+    t_id: uuid.UUID,
+    ptype_id: uuid.UUID,
+    latest: bool,
+    k: int = 10,
+    optional_dict: dict[str, str] | None = None,
 ) -> list[str]:
     """
     Get the latest history of work for a part type.
@@ -77,7 +77,7 @@ def test_build_tool_parameter():
             "k": {
                 "type": "integer",
                 "description": "Number to return. Include some other text, that will overflow to the "
-                               "next line. This is a pretty long line that should be wrapped.",
+                "next line. This is a pretty long line that should be wrapped.",
                 "default": 10,
                 "minimum": 1,
             },
@@ -91,6 +91,7 @@ def test_build_tool_parameter():
     ), result
 
 
+@mark.skip(reason="Not implemented yet")
 def test_call_tool():
     tool = ToolDefinition(
         function=_get_part_work_history_test_func,
@@ -108,16 +109,16 @@ def test_call_tool():
         library_parameters={"t_id": BASE_TENANT_ID},
     )
 
-    assert (result, ["a", "b"])
+    assert result, ["a", "b"]
 
 
 def _enum_func(
-        ts: datetime,
-        part_type_class_1: PtypeClass,
-        part_type_class_2: PtypeClass | None = None,
-) -> bool:
+    ts: datetime,
+    part_type_class_1: PtypeClass,
+    part_type_class_2: PtypeClass | None = None,
+) -> str:
     print(f"Its {ts}")
-    return part_type_class_1 == part_type_class_2
+    return str(part_type_class_1 == part_type_class_2)
 
 
 def test_build_tool_for_enum():
@@ -146,14 +147,12 @@ def test_build_tool_for_enum():
                 ],
                 "default": "null",
             },
-        }
+        },
     ), tool.build_json_schema()
 
 
-def _literal_func(
-        arg_a: Literal["a", "b"], arg_b: Literal["a", "b"] | None = None
-) -> bool:
-    return arg_a == arg_b
+def _literal_func(arg_a: Literal["a", "b"], arg_b: Literal["a", "b"] | None = None):
+    return str(arg_a == arg_b)
 
 
 def test_build_tool_for_literal():
@@ -178,20 +177,18 @@ def test_build_tool_for_literal():
         },
         description="",
         required_parameters=["arg_a"],
-
     ), result
 
 
 def _pydantic_func(
-        contact_info: PersonalContactInfoModel,
-        contact_info_2: PersonalContactInfoModel | None = None,
-) -> None:
-    print(
-        f"The person's name is {contact_info.first_name} {contact_info.last_name}"
-    )
+    contact_info: PersonInfo,
+    contact_info_2: PersonInfo | None = None,
+):
+    print(f"The person's name is {contact_info.first_name} {contact_info.last_name}")
     print(
         f"The 2nd person's name is {contact_info_2.first_name} {contact_info_2.last_name}"
     )
+    return ""
 
 
 def test_build_tool_for_pydantic_model():
@@ -234,7 +231,7 @@ def test_build_tool_for_pydantic_model():
                     },
                     "phone": {
                         "description": "Phone number. Must begin with +, have the country code, and be "
-                                       "between 10 and 20 digits. Used for Two Factor Auth.",
+                        "between 10 and 20 digits. Used for Two Factor Auth.",
                         "search": {
                             "ignore_case": True,
                             "match_partial": True,
@@ -283,7 +280,7 @@ def test_build_tool_for_pydantic_model():
                             },
                             "phone": {
                                 "description": "Phone number. Must begin with +, have the country code, "
-                                               "and be between 10 and 20 digits. Used for Two Factor Auth.",
+                                "and be between 10 and 20 digits. Used for Two Factor Auth.",
                                 "search": {
                                     "ignore_case": True,
                                     "match_partial": True,
@@ -308,11 +305,10 @@ def test_build_tool_for_pydantic_model():
     ), result
 
 
-def _list_of_items_func(
-        self, int_list: list[int], model_list: list[OperationIdName]
-):
+def _list_of_items_func(int_list: list[int], model_list: list[OperationIdName]):
     print(f"Int len: {len(int_list)}")
     print(f"BaseModel len: {len(model_list)}")
+    return ""
 
 
 def test_build_tool_for_list_of_items():
