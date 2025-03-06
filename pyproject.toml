@@ -18,7 +18,6 @@ dependencies = [
     "pydantic==2.10.6",
     "anthropic==0.47.1",
     "openai==1.60.0",
-    "bson==0.5.10"
 ]
 
 [dependency-groups]
@@ -26,7 +25,8 @@ dev = [
     "ruff>=0.9.9",
     "pytest==7.4.0",
     "pytest-cov==4.1.0",
-    "coverage[toml]==7.3.2"
+    "coverage[toml]==7.3.2",
+    "bson==0.5.10"
 ]
 
 [project.urls]
