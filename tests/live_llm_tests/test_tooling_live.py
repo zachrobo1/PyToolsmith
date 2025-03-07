@@ -28,9 +28,7 @@ def test_tool_library_for_anthropic(
 
 
 @mark.llm_test
-def test_tool_library_for_bedrock(
-        live_bedrock_client, basic_tool_library: ToolLibrary
-):
+def test_tool_library_for_bedrock(live_bedrock_client, basic_tool_library: ToolLibrary):
     result = live_bedrock_client.converse(
         system=[{"text": _SYS_MESSAGE}],
         toolConfig=basic_tool_library.to_bedrock(),
@@ -42,6 +40,6 @@ def test_tool_library_for_bedrock(
             )
         ],
         inferenceConfig={"maxTokens": 100},
-    )['output']['message']
+    )["output"]["message"]
     for phrase in ["user", "ID", "name"]:
-        assert phrase in result['content'][0]["text"]
+        assert phrase in result["content"][0]["text"]

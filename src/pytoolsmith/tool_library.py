@@ -39,3 +39,21 @@ class ToolLibrary:
     #         raise ValueError(f"No such tool: {tool_name}")
     #
     #     return self._tools[tool_name].call_tool(llm_parameters, injected_parameters)
+
+
+a = {
+    "name": "my_tool",
+    "inputSchema": {
+        "json": {
+            "type": "object",
+            "properties": {
+                "my_param": {
+                    "anyOf": [{"type": "string"}, {"type": "null"}],
+                    "description": "A parameter controlled by the LLM",
+                }
+            },
+            "required": ["my_param"],
+        }
+    },
+    "description": "This a tool that formats a specific string with parameters.  Returns: A formatted string.",
+}

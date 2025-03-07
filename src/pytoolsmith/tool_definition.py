@@ -6,10 +6,11 @@ from typing import (
     Any,
     Callable,
     NewType,
+    Self,
     _LiteralGenericAlias,
     _UnionGenericAlias,
     get_args,
-    get_origin, Self,
+    get_origin,
 )
 
 from pydantic import BaseModel, model_validator

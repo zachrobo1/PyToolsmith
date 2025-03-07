@@ -6,12 +6,13 @@ A lightweight Python library that simplifies the process of exposing functions a
 
 [![codecov](https://codecov.io/gh/zachrobo1/PyToolsmith/graph/badge.svg?token=5SQEOF1TV2)](https://codecov.io/gh/zachrobo1/PyToolsmith)
 
-## About
+## What is this?
 
 LLM Tooling (or function calling) is a powerful way to connect LLMs to the real world. However, defining tool
 definitions can be cumbersome, as it requires defining both the tool function, and a JSON schema that describes the
 tool. Additionally, in some cases, you may want to control certain parameters passed into tools rather than have the LLM
-decide what to pass in. PyToolsmith aims to solve this by providing a simple API to define tools and a library to use.
+decide what to pass in. PyToolsmith aims to solve this by providing a simple API to define tools from function
+definitions and automatically generate the JSON schema to pass to the LLM.
 
 ### Supported Providers
 
@@ -21,14 +22,15 @@ decide what to pass in. PyToolsmith aims to solve this by providing a simple API
 
 ### Type support
 
-Part of being able to define schemas is mapping certain types to a JSON-compatible format. As such py
+Part of being able to define schemas is mapping certain types to a JSON-compatible format. As such, PyToolsmith allows
+you to define custom type maps to be used to generate the JSON schema. However, it comes out-of-the-box with support
+for:
 
-Out-of-the-box support for:
-
-1. Pydantic models
+1. Standard based objects `str`, `int`, `float`, `bool`, etc.
 2. UUIDs
+3. Pydantic models
 
-### Usage:
+### Usage
 
 Simply define a tool definition as such:
 
@@ -50,16 +52,35 @@ def my_tool(my_param: str | None, my_controlled_param: str = "hello") -> str:
     return f"I did a search for {my_param} with controlled parameter {my_controlled_param}!"
 
 
-# 2. Make a tool definition
+# 2. Make a tool definition, calling out the injected parameter.
 tool_definition = ToolDefinition(function=my_tool, injected_parameters=["my_controlled_param"])
 
 # 3. Get a schema representing the tool automatically
 schema = tool_definition.build_json_schema()
 
-# 4. Get a tool definition ready to pass directly into LLM calls.
+# 4. Get a tool definition ready to pass directly into LLM calls. 
+# Note that the LLM does not have the context for the controlled parameter.
 schema.to_openai()
 schema.to_anthropic()
 schema.to_bedrock()
+
+# Bedrock Output:
+# {
+#     "name": "my_tool",
+#     "inputSchema": {
+#         "json": {
+#             "type": "object",
+#             "properties": {
+#                 "my_param": {
+#                     "anyOf": [{"type": "string"}, {"type": "null"}],
+#                     "description": "A parameter controlled by the LLM",
+#                 }
+#             },
+#             "required": ["my_param"],
+#         }
+#     },
+#     "description": "This a tool that formats a specific string with parameters. Returns: A formatted string.",
+# }
 
 ```
 
@@ -86,16 +107,17 @@ tool_library.to_bedrock()
 Additionally, you can control the serialization parameters:
 
 ```python
-from 
+from bson import ObjectId
+from pytoolsmith import pytoolsmith_config
+
+pytoolsmith_config.update_type_map({ObjectId: "string"})
 ```
 
 ## Future Work
 
-3. Build out library
-    - How do we specify which params are injectable on a library level? Ideally type hint..
-    - How are we going to handle serialization for loading function
-        - Library level? Would be good to re-use serializers. Or could do it per-tool
-        - Could we potentially take advantage of the `Config` on pydantic models.
-
+- Live LLM test for OpenAI
+- Add support for calling tools & returning results directly from the library
+- Support installations requiring pydantic v1
+- Publish on PyPI 🤠
 
 
