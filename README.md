@@ -4,6 +4,8 @@ A lightweight Python library that simplifies the process of exposing functions a
 
 ### Status
 
+![Tests](https://github.com/zachrobo1/PyToolsmith/actions/workflows/tests.yml/badge.svg)
+![PyPI - Version](https://img.shields.io/pypi/v/pytoolsmith)
 [![codecov](https://codecov.io/gh/zachrobo1/PyToolsmith/graph/badge.svg?token=5SQEOF1TV2)](https://codecov.io/gh/zachrobo1/PyToolsmith)
 
 ## What is this?
@@ -14,13 +16,20 @@ tool. Additionally, in some cases, you may want to control certain parameters pa
 decide what to pass in. PyToolsmith aims to solve this by providing a simple API to define tools from function
 definitions and automatically generate the JSON schema to pass to the LLM.
 
-### Supported Providers
+### Features
+
+-[x] Generates JSON schemas directly from your function definitions.
+-[x] Parses Google-style docstrings to describe your tools in the schema.
+-[x] Pass the same tools into different LLM providers with a simple method call.
+-[x] Define custom type mappings to extend functionality.
+
+### Supported Provider Interfaces
 
 - Anthropic
 - AWS Bedrock
-- OpenAI (coming soon)
+- OpenAI
 
-### Type support
+### Included Type Support
 
 Part of being able to define schemas is mapping certain types to a JSON-compatible format. As such, PyToolsmith allows
 you to define custom type maps to be used to generate the JSON schema. However, it comes out-of-the-box with support
@@ -113,12 +122,17 @@ from pytoolsmith import pytoolsmith_config
 pytoolsmith_config.update_type_map({ObjectId: "string"})
 ```
 
-## Future Work
+## Future Plans
 
-- Live LLM test for OpenAI
-- Add support for calling tools & returning results directly from the library
-    - Include serialization of LLM inputs to function input types
-- Support installations requiring pydantic v1
-- Publish on PyPI 🤠
+-[ ] Support for directly calling tools and passing back the message in the needed format.
+-[ ] Support for projects requiring Pydantic v1
+-[ ] Extendable serialization support (for LLM messages -> function inputs and vise versa)
+
+### A Note
+
+I was heavily inspired by FastAPI's batteries-included ability
+to [create automatic OpenAPI specs](https://fastapi.tiangolo.com/reference/openapi/docs/) for web applications. Having a
+single source of truth defined as Pydantic models speeds up development and reduces the chance of errors - why not apply
+that to LLM interfaces? 🤠
 
 

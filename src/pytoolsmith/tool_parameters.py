@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Any
 
 from pydantic import BaseModel
@@ -12,6 +13,12 @@ from .types.bedrock_types import (
     AwsBedrockToolParam,
     AwsBedrockToolSchemaJson,
 )
+from .types.openai_types import (
+    OpenAIFunctionDefinition,
+    OpenAIFunctionParameters,
+    OpenAIToolParam,
+)
+from .utils import remove_keys
 
 
 class ToolParameters(BaseModel):
@@ -54,5 +61,29 @@ class ToolParameters(BaseModel):
             ),
         )
 
-    def to_openai(self):
-        raise NotImplementedError
+    def to_openai(self, *, strict_mode=True) -> OpenAIToolParam:
+        """
+        Strict mode has a better guarantee that the LLM will use the tool correctly. However, it removes additional
+        formatting information and defaults from the LLM's context.
+        """
+        params = deepcopy(self.input_properties)
+        if strict_mode:
+            # We have to remove extra keys such as "format" from the properties...
+            params = remove_keys(
+                params,
+                ["format", "default"]
+            )
+        return OpenAIToolParam(
+            function=OpenAIFunctionDefinition(
+                name=self.name,
+                description=self.description,
+                parameters=OpenAIFunctionParameters(
+                    type="object",
+                    additionalProperties=not strict_mode,
+                    properties=params,
+                    required=list(params.keys()) if strict_mode else self.required_parameters,
+                ),
+                strict=strict_mode,
+            ),
+            type="function"
+        )

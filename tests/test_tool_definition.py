@@ -24,17 +24,17 @@ class TestEnum(StrEnum):
 BASE_TENANT_ID = uuid.uuid4()
 
 
-def _get_part_work_history_test_func(
-        t_id: uuid.UUID,
-        ptype_id: uuid.UUID,
+def mock_function_database_lookup(
+        tenant_id: uuid.UUID,
+        entity_id: uuid.UUID,
         latest: bool,
         k: int = 10,
         optional_dict: dict[str, str] | None = None,
 ) -> list[str]:
     """
-    Get the latest history of work for a part type.
+    Mocks a database query.
     Args:
-        ptype_id: The part type ID
+        entity_id: The entity ID
         latest: If it's latest or not.
         k: Number to return. Include some other text, that will overflow
         to the next line. This is a pretty long line that should be wrapped.
@@ -44,8 +44,8 @@ def _get_part_work_history_test_func(
     Returns: A list of strings
 
     """
-    assert isinstance(t_id, uuid.UUID)
-    assert isinstance(ptype_id, uuid.UUID)
+    assert isinstance(tenant_id, uuid.UUID)
+    assert isinstance(entity_id, uuid.UUID)
     assert isinstance(latest, bool)
     assert isinstance(k, int)
     assert optional_dict is None or isinstance(optional_dict, dict)
@@ -55,23 +55,23 @@ def _get_part_work_history_test_func(
 
 def test_build_tool_parameter():
     tool = ToolDefinition(
-        function=_get_part_work_history_test_func,
-        injected_parameters=["t_id"],
+        function=mock_function_database_lookup,
+        injected_parameters=["tenant_id"],
         additional_parameters={"k": {"minimum": 1}},
     )
 
-    assert tool.name == "_get_part_work_history_test_func"
+    assert tool.name == "mock_function_database_lookup"
 
     result = tool.build_json_schema()
     assert (
             ToolParameters(
-                name="_get_part_work_history_test_func",
-                description="Get the latest history of work for a part type. Returns: A list of strings",
+                name="mock_function_database_lookup",
+                description="Mocks a database query. Returns: A list of strings",
                 input_properties={
-                    "ptype_id": {
+                    "entity_id": {
                         "type": "string",
                         "format": "uuid",
-                        "description": "The part type ID",
+                        "description": "The entity ID",
                     },
                     "latest": {
                         "type": "boolean",
@@ -90,7 +90,7 @@ def test_build_tool_parameter():
                         "default": "null",
                     },
                 },
-                required_parameters=["ptype_id", "latest"],
+                required_parameters=["entity_id", "latest"],
             )
             == result
     )

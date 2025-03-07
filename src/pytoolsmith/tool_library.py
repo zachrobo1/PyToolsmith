@@ -15,10 +15,10 @@ class ToolLibrary:
 
         self._tools[tool.name] = tool
 
-    def to_openai(self):
-        return [t.build_json_schema().to_openai() for t in self._tools.values()]
+    def to_openai(self, *, strict_mode=True):
+        return [t.build_json_schema().to_openai(strict_mode=strict_mode) for t in self._tools.values()]
 
-    def to_anthropic(self, use_cache_control: bool = False):
+    def to_anthropic(self, *, use_cache_control: bool = False):
         return [
             t.build_json_schema().to_anthropic(use_cache_control=use_cache_control)
             for t in self._tools.values()
