@@ -1,6 +1,7 @@
+from types import NoneType
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from .types.anthropic_types import (
     AnthropicCacheControlParam,
@@ -12,6 +13,7 @@ from .types.bedrock_types import (
     AwsBedrockToolParam,
     AwsBedrockToolSchemaJson,
 )
+from .types.openai_types import OpenAIFunctionDefinition, OpenAIToolParam
 
 
 class ToolParameters(BaseModel):
@@ -21,6 +23,10 @@ class ToolParameters(BaseModel):
     required_parameters: list[str]
     name: str
     description: str
+
+    model_config = ConfigDict(
+        json_encoders={NoneType: lambda _: "null"}
+    )
 
     def to_bedrock(self, as_dict: bool = True) -> AwsBedrockToolParam | dict:
         """
@@ -54,5 +60,11 @@ class ToolParameters(BaseModel):
             ),
         )
 
-    def to_openai(self):
-        raise NotImplementedError
+    def to_openai(self) -> OpenAIToolParam:
+        return OpenAIToolParam(
+            function=OpenAIFunctionDefinition(
+                name=self.name,
+                description=self.description,
+                parameters=self.input_properties),
+            type="function"
+        )

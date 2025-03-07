@@ -5,6 +5,7 @@ import boto3
 import pytest
 from anthropic import Anthropic
 from dotenv import load_dotenv
+from openai import OpenAI
 
 from pytoolsmith import ToolDefinition, ToolLibrary
 
@@ -39,6 +40,13 @@ def basic_tool_library() -> ToolLibrary:
 def live_anthropic_client():
     return Anthropic(
         api_key=os.environ.get("ANTHROPIC_API_KEY"),
+    )
+
+
+@pytest.fixture
+def live_openai_client():
+    return OpenAI(
+        api_key=os.environ.get("OPENAI_API_KEY"),
     )
 
 

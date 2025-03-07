@@ -1,5 +1,10 @@
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlockParam
+from openai import OpenAI
+from openai.types.chat import (
+    ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
+)
 from pytest import mark
 
 from pytoolsmith import ToolLibrary
@@ -25,6 +30,24 @@ def test_tool_library_for_anthropic(
     )
     for phrase in ["user", "ID", "name"]:
         assert phrase in result.content[0].text
+
+
+@mark.llm_test
+def test_tool_library_for_openai(
+        live_openai_client: OpenAI, basic_tool_library: ToolLibrary
+):
+    result = live_openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            ChatCompletionSystemMessageParam(role="system", content=_SYS_MESSAGE),
+            ChatCompletionUserMessageParam(role="user", content="What can you do for me?")
+        ],
+        tools=basic_tool_library.to_openai(),
+        max_completion_tokens=100,
+    )
+
+    for phrase in ["user", "ID", "name"]:
+        assert phrase in result.choices[0].message
 
 
 @mark.llm_test
