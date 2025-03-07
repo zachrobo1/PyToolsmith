@@ -13,7 +13,11 @@ from .types.bedrock_types import (
     AwsBedrockToolParam,
     AwsBedrockToolSchemaJson,
 )
-from .types.openai_types import OpenAIFunctionDefinition, OpenAIToolParam, OpenAIFunctionParameters
+from .types.openai_types import (
+    OpenAIFunctionDefinition,
+    OpenAIFunctionParameters,
+    OpenAIToolParam,
+)
 from .utils import remove_keys
 
 
@@ -57,22 +61,30 @@ class ToolParameters(BaseModel):
             ),
         )
 
-    def to_openai(self) -> OpenAIToolParam:
-        # We have to remove extra keys such as "format" from the properties...
-        params = remove_keys(
-            deepcopy(self.input_properties),
-            ["format"]
-        )
+    def to_openai(self, *, strict_mode=True) -> OpenAIToolParam:
+        """
+        Strict mode has a better guarantee that the LLM will use the tool correctly. However, it requires the following:
+            1. additionalProperties must be set to false for each object in the parameters.
+            2. All fields must be marked as required (no defaults)
+        """
+        params = deepcopy(self.input_properties)
+        if strict_mode:
+            # We have to remove extra keys such as "format" from the properties...
+            params = remove_keys(
+                params,
+                ["format", "default"]
+            )
         return OpenAIToolParam(
             function=OpenAIFunctionDefinition(
                 name=self.name,
                 description=self.description,
                 parameters=OpenAIFunctionParameters(
                     type="object",
-                    additionalProperties=False,
+                    additionalProperties=not strict_mode,
                     properties=params,
                     required=self.required_parameters,
-                )
+                ),
+                strict=strict_mode,
             ),
             type="function"
         )

@@ -1,5 +1,6 @@
 import os
 import uuid
+from typing import Literal
 
 import boto3
 import pytest
@@ -16,16 +17,18 @@ load_dotenv()
 def basic_tool_library() -> ToolLibrary:
     """Returns a tool library with a few tools."""
 
-    def get_users_name_from_id(user_id: uuid.UUID) -> str:
+    def get_users_name_from_id(user_id: uuid.UUID, fields_to_include: list[Literal[
+        "first_name", "last_name", "email", "phone"]] | None = None) -> str:
         """
         Searches the database for a user's full name.
         Args:
             user_id: The ID of the user whose name we want to look up.
+            fields_to_include: A list of fields to include in the response. Can set to `null` to return all fields.
 
-        Returns: The first and last name of the user.
+        Returns: The user's information that was specified.
 
         """
-        print(user_id)
+        print(user_id, fields_to_include)
         return "Zach Cloud"
 
     user_lookup_tool = ToolDefinition(function=get_users_name_from_id)

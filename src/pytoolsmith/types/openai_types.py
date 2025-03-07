@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class OpenAIFunctionParameters(BaseModel):
     type: Literal["object"]
-    additionalProperties: Literal[False]
+    additionalProperties: bool
     properties: dict
     required: list[str]
 
@@ -22,7 +22,7 @@ class OpenAIFunctionDefinition(BaseModel):
 
     parameters: OpenAIFunctionParameters
 
-    strict: bool = True
+    strict: bool
     """Whether to enable strict schema adherence when generating the function call.
 
     If set to true, the model will follow the exact schema defined in the

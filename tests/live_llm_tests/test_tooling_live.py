@@ -1,13 +1,18 @@
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlockParam
 from openai import OpenAI
-from openai.types.chat import ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam
+from openai.types.chat import (
+    ChatCompletionSystemMessageParam,
+    ChatCompletionUserMessageParam,
+)
 from pytest import mark
 
 from pytoolsmith import ToolLibrary
 
 _SYS_MESSAGE = "You are a helpful assistant connected to a database."
-_USER_MESSAGE = "What do you need to look up someone?"
+_USER_MESSAGE = "What do you need to look up someone? What can you return for me?"
+
+PHRASES = ["user", "id", "name", "email", "phone"]
 
 
 @mark.llm_test
@@ -26,26 +31,29 @@ def test_tool_library_for_anthropic(
         ],
         max_tokens=100,
     )
-    for phrase in ["user", "ID", "name"]:
-        assert phrase in result.content[0].text
+    for phrase in PHRASES:
+        assert phrase in result.content[0].text.lower()
 
 
 @mark.llm_test
+@mark.parametrize("strict_mode", [True, False])
 def test_tool_library_for_openai(
-        live_openai_client: OpenAI, basic_tool_library: ToolLibrary
+        live_openai_client: OpenAI, basic_tool_library: ToolLibrary, strict_mode: bool
 ):
+    import pprint
+    pprint.pprint([m.model_dump() for m in basic_tool_library.to_openai(strict_mode=strict_mode)])
     result = live_openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
             ChatCompletionSystemMessageParam(role="system", content=_SYS_MESSAGE),
             ChatCompletionUserMessageParam(role="user", content=_USER_MESSAGE)
         ],
-        tools=basic_tool_library.to_openai(),
+        tools=basic_tool_library.to_openai(strict_mode=strict_mode),
         max_completion_tokens=100,
     )
 
-    for phrase in ["user", "ID", "name"]:
-        assert phrase in result.choices[0].message.content
+    for phrase in PHRASES:
+        assert phrase in result.choices[0].message.content.lower()
 
 
 @mark.llm_test
@@ -62,5 +70,5 @@ def test_tool_library_for_bedrock(live_bedrock_client, basic_tool_library: ToolL
         ],
         inferenceConfig={"maxTokens": 100},
     )["output"]["message"]
-    for phrase in ["user", "ID", "name"]:
-        assert phrase in result["content"][0]["text"]
+    for phrase in PHRASES:
+        assert phrase in result["content"][0]["text"].lower()
