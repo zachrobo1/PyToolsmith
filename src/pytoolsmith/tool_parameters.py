@@ -22,9 +22,12 @@ class ToolParameters(BaseModel):
     name: str
     description: str
 
-    def to_bedrock(self) -> AwsBedrockToolParam:
-        """Returns a Bedrock-compatible tool definition."""
-        return AwsBedrockToolParam(
+    def to_bedrock(self, as_dict: bool = True) -> AwsBedrockToolParam | dict:
+        """
+        Returns a Bedrock-compatible tool definition.
+        `as_dict` set to True will allow you to pass it directly to Bedrock.
+        """
+        param = AwsBedrockToolParam(
             name=self.name,
             inputSchema=AwsBedrockToolSchemaJson(
                 json=AwsBedrockToolInputSchema(
@@ -35,6 +38,9 @@ class ToolParameters(BaseModel):
             ),
             description=self.description,
         )
+        if as_dict:
+            return param.model_dump(by_alias=True)
+        return param
 
     def to_anthropic(self, use_cache_control: bool = False):
         return AnthropicToolParam(

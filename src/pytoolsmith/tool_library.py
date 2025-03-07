@@ -28,7 +28,7 @@ class ToolLibrary:
         return AwsBedrockConverseToolConfig(
             tools=[
                 AwsBedrockToolSpecListObject(
-                    toolSpec=t.build_json_schema().to_bedrock()
+                    toolSpec=t.build_json_schema().to_bedrock(as_dict=False)
                 )
                 for t in self._tools.values()
             ]

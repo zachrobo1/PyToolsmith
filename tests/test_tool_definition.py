@@ -3,9 +3,11 @@ from datetime import datetime
 from enum import StrEnum, auto
 from typing import Literal
 
+import pytest
+from bson import ObjectId
 from pydantic import BaseModel
 
-from pytoolsmith import ToolDefinition, ToolParameters
+from pytoolsmith import ToolDefinition, ToolParameters, pytoolsmith_config
 
 
 class PersonInfo(BaseModel):
@@ -286,3 +288,15 @@ def test_build_tool_for_list_of_items():
             )
             == result
     )
+
+
+def _breaking_function(id_: ObjectId) -> str:
+    return id_.binary.decode()
+
+
+def test_breaking_tool():
+    """Tests to make sure that when an invalid parameter type is set, it raises an error."""
+    assert ObjectId not in pytoolsmith_config.get_type_map()
+
+    with pytest.raises(ValueError):
+        ToolDefinition(function=_breaking_function)
