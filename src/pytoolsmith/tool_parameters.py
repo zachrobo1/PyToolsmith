@@ -63,9 +63,8 @@ class ToolParameters(BaseModel):
 
     def to_openai(self, *, strict_mode=True) -> OpenAIToolParam:
         """
-        Strict mode has a better guarantee that the LLM will use the tool correctly. However, it requires the following:
-            1. additionalProperties must be set to false for each object in the parameters.
-            2. All fields must be marked as required (no defaults)
+        Strict mode has a better guarantee that the LLM will use the tool correctly. However, it removes additional
+        formatting information and defaults from the LLM's context.
         """
         params = deepcopy(self.input_properties)
         if strict_mode:
@@ -82,7 +81,7 @@ class ToolParameters(BaseModel):
                     type="object",
                     additionalProperties=not strict_mode,
                     properties=params,
-                    required=self.required_parameters,
+                    required=list(params.keys()) if strict_mode else self.required_parameters,
                 ),
                 strict=strict_mode,
             ),

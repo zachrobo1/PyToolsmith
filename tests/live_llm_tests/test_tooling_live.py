@@ -51,7 +51,7 @@ def test_tool_library_for_openai(
         tools=basic_tool_library.to_openai(strict_mode=strict_mode),
         max_completion_tokens=100,
     )
-
+    print(result.choices[0].message.content.lower())
     for phrase in PHRASES:
         assert phrase in result.choices[0].message.content.lower()
 
