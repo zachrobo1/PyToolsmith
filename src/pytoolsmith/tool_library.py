@@ -24,7 +24,7 @@ class ToolLibrary:
             for t in self._tools.values()
         ]
 
-    def to_bedrock(self) -> AwsBedrockConverseToolConfig:
+    def to_bedrock(self) -> dict:
         return AwsBedrockConverseToolConfig(
             tools=[
                 AwsBedrockToolSpecListObject(
@@ -32,7 +32,7 @@ class ToolLibrary:
                 )
                 for t in self._tools.values()
             ]
-        )
+        ).model_dump(by_alias=True)
 
     # def call_tool(self, tool_name: str, llm_parameters: dict[str, Any], injected_parameters: dict[str, Any]):
     #     if tool_name not in self._tools:
