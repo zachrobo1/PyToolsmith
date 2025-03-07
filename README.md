@@ -4,6 +4,8 @@ A lightweight Python library that simplifies the process of exposing functions a
 
 ### Status
 
+![Tests](https://github.com/zachrobo1/PyToolsmith/actions/workflows/tests.yml/badge.svg)
+![PyPI - Version](https://img.shields.io/pypi/v/pytoolsmith)
 [![codecov](https://codecov.io/gh/zachrobo1/PyToolsmith/graph/badge.svg?token=5SQEOF1TV2)](https://codecov.io/gh/zachrobo1/PyToolsmith)
 
 ## What is this?
