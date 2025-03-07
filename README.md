@@ -117,6 +117,7 @@ pytoolsmith_config.update_type_map({ObjectId: "string"})
 
 - Live LLM test for OpenAI
 - Add support for calling tools & returning results directly from the library
+    - Include serialization of LLM inputs to function input types
 - Support installations requiring pydantic v1
 - Publish on PyPI 🤠
 
