@@ -1,6 +1,6 @@
 from bson import ObjectId
 
-from pytoolsmith import ToolDefinition, ToolParameters, config
+from pytoolsmith import ToolDefinition, ToolParameters, pytoolsmith_config
 
 
 def func_to_test(test_id: ObjectId) -> str:
@@ -8,8 +8,10 @@ def func_to_test(test_id: ObjectId) -> str:
 
 
 def test_bson_tool_definition():
-    config.update_type_map({ObjectId: "string"})
-    config.update_format_map({ObjectId: "objectId"})  # Not typical- just using to test.
+    pytoolsmith_config.update_type_map({ObjectId: "string"})
+    pytoolsmith_config.update_format_map(
+        {ObjectId: "objectId"}
+    )  # Not typical- just using to test.
     tool_def = ToolDefinition(function=func_to_test)
 
     schema = tool_def.build_json_schema()

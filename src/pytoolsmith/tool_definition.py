@@ -6,17 +6,18 @@ from typing import (
     Any,
     Callable,
     NewType,
+    Self,
     _LiteralGenericAlias,
     _UnionGenericAlias,
     get_args,
     get_origin,
 )
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from typing_extensions import TypeVar
 
-from .config import get_format_map
-from .config.mappings import get_type_map
+from .pytoolsmith_config import get_format_map
+from .pytoolsmith_config.mappings import get_type_map
 from .tool_parameters import ToolParameters
 
 # TODO: figure out how to type this so response type is clear if it's a string or a dict.
@@ -43,6 +44,19 @@ class ToolDefinition(BaseModel):
 
     user_message: str | None = None
     """An optional message to show the user while the tool is being called."""
+
+    @model_validator(mode="after")
+    def ensure_schema_builds(self) -> Self:
+        try:
+            self.build_json_schema()
+        except KeyError as e:
+            raise ValueError(
+                f"Invalid input parameter type: {e.args[0]}. "
+                f"Set a type for this in the PyToolSmith type mapping configuration."
+            )
+        except Exception as e:
+            raise ValueError(f"Error building tool: {e}")
+        return self
 
     @property
     def name(self) -> str:

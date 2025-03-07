@@ -28,6 +28,7 @@ dev = [
     "anthropic==0.47.1",
     "openai==1.60.0",
     "python-dotenv==1.0.1",
+    "boto3==1.37.8",
 ]
 
 [project.urls]
