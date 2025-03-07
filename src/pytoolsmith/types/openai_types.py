@@ -3,6 +3,13 @@ from typing import Literal
 from pydantic import BaseModel
 
 
+class OpenAIFunctionParameters(BaseModel):
+    type: Literal["object"]
+    additionalProperties: Literal[False]
+    properties: dict
+    required: list[str]
+
+
 class OpenAIFunctionDefinition(BaseModel):
     name: str
     """The name of the function to be called.
@@ -13,7 +20,7 @@ class OpenAIFunctionDefinition(BaseModel):
 
     description: str
 
-    parameters: dict
+    parameters: OpenAIFunctionParameters
 
     strict: bool = True
     """Whether to enable strict schema adherence when generating the function call.

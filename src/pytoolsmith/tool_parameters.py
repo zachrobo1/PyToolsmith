@@ -1,7 +1,7 @@
-from types import NoneType
+from copy import deepcopy
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from .types.anthropic_types import (
     AnthropicCacheControlParam,
@@ -13,7 +13,8 @@ from .types.bedrock_types import (
     AwsBedrockToolParam,
     AwsBedrockToolSchemaJson,
 )
-from .types.openai_types import OpenAIFunctionDefinition, OpenAIToolParam
+from .types.openai_types import OpenAIFunctionDefinition, OpenAIToolParam, OpenAIFunctionParameters
+from .utils import remove_keys
 
 
 class ToolParameters(BaseModel):
@@ -23,10 +24,6 @@ class ToolParameters(BaseModel):
     required_parameters: list[str]
     name: str
     description: str
-
-    model_config = ConfigDict(
-        json_encoders={NoneType: lambda _: "null"}
-    )
 
     def to_bedrock(self, as_dict: bool = True) -> AwsBedrockToolParam | dict:
         """
@@ -61,10 +58,21 @@ class ToolParameters(BaseModel):
         )
 
     def to_openai(self) -> OpenAIToolParam:
+        # We have to remove extra keys such as "format" from the properties...
+        params = remove_keys(
+            deepcopy(self.input_properties),
+            ["format"]
+        )
         return OpenAIToolParam(
             function=OpenAIFunctionDefinition(
                 name=self.name,
                 description=self.description,
-                parameters=self.input_properties),
+                parameters=OpenAIFunctionParameters(
+                    type="object",
+                    additionalProperties=False,
+                    properties=params,
+                    required=self.required_parameters,
+                )
+            ),
             type="function"
         )
