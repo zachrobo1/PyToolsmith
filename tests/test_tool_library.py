@@ -1,3 +1,5 @@
+from dataclasses import asdict
+
 import pytest
 
 from pytoolsmith import ToolDefinition, ToolLibrary
@@ -23,7 +25,7 @@ def filled_tool_library():
 
 
 def test_cast_library_to_anthropic(filled_tool_library):
-    anthropic_result = [t.model_dump() for t in filled_tool_library.to_anthropic()]
+    anthropic_result = [t for t in filled_tool_library.to_anthropic()]
 
     exp_result = [
         {

@@ -1,4 +1,5 @@
 import inspect
+from dataclasses import dataclass, field
 from enum import EnumType
 from types import GenericAlias, UnionType
 # noinspection PyUnresolvedReferences
@@ -13,7 +14,6 @@ from typing import (
     get_origin,
 )
 
-from pydantic import BaseModel, model_validator
 from typing_extensions import TypeVar
 
 from .pytoolsmith_config import get_format_map
@@ -24,16 +24,17 @@ from .tool_parameters import ToolParameters
 R = TypeVar("R", dict, str, list[str])
 
 
-class ToolDefinition(BaseModel):
+@dataclass
+class ToolDefinition:
     """Defines a tool to be used for an LLM conversation."""
 
     function: Callable[..., R]
     """The function to call."""
 
-    injected_parameters: list[str] = []
+    injected_parameters: list[str] = field(default_factory=list)
     """The parameters that should be ignored when making the LLM tool definition"""
 
-    additional_parameters: dict[str, dict] = {}
+    additional_parameters: dict[str, dict] = field(default_factory=dict)
     """Additional parameters to add to parameters for the LLM tool definition, 
     for example: the minimum value of a parameter
 
@@ -45,8 +46,8 @@ class ToolDefinition(BaseModel):
     user_message: str | None = None
     """An optional message to show the user while the tool is being called."""
 
-    @model_validator(mode="after")
-    def ensure_schema_builds(self) -> Self:
+    def __post_init__(self) -> None:
+        """Validate the schema can be built after initialization."""
         try:
             self.build_json_schema()
         except KeyError as e:
@@ -56,7 +57,6 @@ class ToolDefinition(BaseModel):
             )
         except Exception as e:
             raise ValueError(f"Error building tool: {e}")
-        return self
 
     @property
     def name(self) -> str:
@@ -157,7 +157,8 @@ class ToolDefinition(BaseModel):
             elif isinstance(param_type, _LiteralGenericAlias):
                 # Handle literals
                 enums.extend(get_args(param_type))
-            elif issubclass(param_type, BaseModel):
+            elif hasattr(param_type, "model_json_schema"):
+                # Handle types with model_json_schema method (like Pydantic models)
                 schema_dict.update(param_type.model_json_schema())
             else:
                 # Handle additional format updates.
@@ -265,8 +266,8 @@ class ToolDefinition(BaseModel):
         if isinstance(param_type, _LiteralGenericAlias):
             param_type = [type(arg) for arg in get_args(param_type)][0]
 
-        if issubclass(param_type, BaseModel):
-            param_type = BaseModel
+        if hasattr(param_type, "model_json_schema"):
+            return "object"
 
         if isinstance(param_type, EnumType):
             param_type = [type(enum.value) for enum in param_type][0]
@@ -298,8 +299,8 @@ class ToolDefinition(BaseModel):
     def _extract_function_descriptions(self) -> str:
         docstring = self.function.__doc__
 
-        if "Args:" not in docstring:
-            return docstring
+        if not docstring or "Args:" not in docstring:
+            return docstring or ""
 
         # Split the docstring into lines but only strip right whitespace
         lines = [line.rstrip() for line in docstring.split("\n")]

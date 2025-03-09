@@ -1,9 +1,9 @@
+from dataclasses import dataclass
 from typing import Literal
 
-from pydantic import BaseModel, Field
 
-
-class AwsBedrockToolInputSchema(BaseModel):
+@dataclass
+class AwsBedrockToolInputSchema:
     """Defines the JSON-schema compliant input schema for a tool to be used by bedrock"""
 
     type: Literal["object"]
@@ -13,13 +13,15 @@ class AwsBedrockToolInputSchema(BaseModel):
     """List of required inputs to the tool"""
 
 
-class AwsBedrockToolSchemaJson(BaseModel):
-    json_val: AwsBedrockToolInputSchema = Field(
-        alias="json"
-    )  # json as a name is reserved...
+@dataclass
+class AwsBedrockToolSchemaJson:
+    # Using field to handle the alias
+    json: AwsBedrockToolInputSchema
+    # json as a name is reserved...
 
 
-class AwsBedrockToolParam(BaseModel):
+@dataclass
+class AwsBedrockToolParam:
     """Gives Bedrock information regarding a tool, it's name, what it's used for, and how to interact with it."""
 
     name: str
@@ -27,13 +29,15 @@ class AwsBedrockToolParam(BaseModel):
     description: str
 
 
-class AwsBedrockToolSpecListObject(BaseModel):
+@dataclass
+class AwsBedrockToolSpecListObject:
     """Intermediate step to pass data into Bedrock."""
 
     toolSpec: AwsBedrockToolParam
 
 
-class AwsBedrockConverseToolConfig(BaseModel):
+@dataclass
+class AwsBedrockConverseToolConfig:
     """What gets passed into Bedrock to configure the tools available to the LLM"""
 
     tools: list[AwsBedrockToolSpecListObject]
