@@ -22,8 +22,14 @@ def filled_tool_library():
     return tool_library
 
 
+@pytest.mark.parametrize("method", ["to_anthropic", "to_openai", "to_bedrock"])
+def test_to_x_works(filled_tool_library, method):
+    """Tests each of the methods run."""
+    getattr(filled_tool_library, method)()
+
+
 def test_cast_library_to_anthropic(filled_tool_library):
-    anthropic_result = [t.model_dump() for t in filled_tool_library.to_anthropic()]
+    anthropic_result = filled_tool_library.to_anthropic()
 
     exp_result = [
         {

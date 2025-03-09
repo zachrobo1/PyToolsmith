@@ -1,4 +1,5 @@
 import uuid
+from dataclasses import asdict
 from datetime import datetime
 from enum import StrEnum, auto
 from typing import Literal
@@ -239,7 +240,7 @@ def test_build_tool_for_pydantic_model():
         description="",
     )
 
-    assert exp.model_dump() == result.model_dump()
+    assert asdict(exp) == asdict(result)
 
 
 def _list_of_items_func(int_list: list[int], model_list: list[PersonInfo]):

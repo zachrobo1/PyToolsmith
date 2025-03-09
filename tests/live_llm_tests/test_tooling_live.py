@@ -40,8 +40,6 @@ def test_tool_library_for_anthropic(
 def test_tool_library_for_openai(
         live_openai_client: OpenAI, basic_tool_library: ToolLibrary, strict_mode: bool
 ):
-    import pprint
-    pprint.pprint([m.model_dump() for m in basic_tool_library.to_openai(strict_mode=strict_mode)])
     result = live_openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -51,7 +49,6 @@ def test_tool_library_for_openai(
         tools=basic_tool_library.to_openai(strict_mode=strict_mode),
         max_completion_tokens=100,
     )
-    print(result.choices[0].message.content.lower())
     for phrase in PHRASES:
         assert phrase in result.choices[0].message.content.lower()
 

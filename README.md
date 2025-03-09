@@ -18,10 +18,10 @@ definitions and automatically generate the JSON schema to pass to the LLM.
 
 ### Features
 
--[x] Generates JSON schemas directly from your function definitions.
--[x] Parses Google-style docstrings to describe your tools in the schema.
--[x] Pass the same tools into different LLM providers with a simple method call.
--[x] Define custom type mappings to extend functionality.
+- [x] Generates JSON schemas directly from your function definitions.
+- [x] Parses Google-style docstrings to describe your tools in the schema.
+- [x] Pass the same tools into different LLM providers with a simple method call.
+- [x] Define custom type mappings to extend functionality.
 
 ### Supported Provider Interfaces
 
@@ -37,7 +37,6 @@ for:
 
 1. Standard based objects `str`, `int`, `float`, `bool`, etc.
 2. UUIDs
-3. Pydantic models
 
 ### Usage
 
@@ -124,15 +123,15 @@ pytoolsmith_config.update_type_map({ObjectId: "string"})
 
 ## Future Plans
 
--[ ] Support for directly calling tools and passing back the message in the needed format.
--[ ] Support for projects requiring Pydantic v1
--[ ] Extendable serialization support (for LLM messages -> function inputs and vise versa)
+- [ ] Support for directly calling tools and passing back the message in the needed format.
+- [ ] Extendable serialization support (for LLM messages -> function inputs and vise versa)
 
 ### A Note
 
 I was heavily inspired by FastAPI's batteries-included ability
 to [create automatic OpenAPI specs](https://fastapi.tiangolo.com/reference/openapi/docs/) for web applications. Having a
-single source of truth defined as Pydantic models speeds up development and reduces the chance of errors - why not apply
+single source of truth for your API docs defined as code speeds up development and reduces the chance of errors - why
+not apply
 that to LLM interfaces? 🤠
 
 

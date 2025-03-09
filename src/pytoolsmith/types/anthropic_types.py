@@ -1,25 +1,24 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
-from pydantic import BaseModel
+from dataclasses import dataclass
 from typing_extensions import Literal
 
 
-class AnthropicCacheControlParam(BaseModel):
+@dataclass
+class AnthropicCacheControlParam:
     type: Literal["ephemeral"]
 
 
-class AnthropicInputSchema(BaseModel):
+@dataclass
+class AnthropicInputSchema:
     type: Literal["object"]
-
     properties: dict
     """The input properties"""
 
 
-class AnthropicToolParam(BaseModel):
+@dataclass
+class AnthropicToolParam:
     input_schema: AnthropicInputSchema
-
     name: str
-
-    cache_control: AnthropicCacheControlParam | None = None
-
     description: str
+    cache_control: AnthropicCacheControlParam | None = None

@@ -1,16 +1,17 @@
+from dataclasses import dataclass
 from typing import Literal
 
-from pydantic import BaseModel
 
-
-class OpenAIFunctionParameters(BaseModel):
+@dataclass
+class OpenAIFunctionParameters:
     type: Literal["object"]
     additionalProperties: bool
     properties: dict
     required: list[str]
 
 
-class OpenAIFunctionDefinition(BaseModel):
+@dataclass
+class OpenAIFunctionDefinition:
     name: str
     """The name of the function to be called.
 
@@ -19,9 +20,7 @@ class OpenAIFunctionDefinition(BaseModel):
     """
 
     description: str
-
     parameters: OpenAIFunctionParameters
-
     strict: bool
     """Whether to enable strict schema adherence when generating the function call.
 
@@ -32,8 +31,8 @@ class OpenAIFunctionDefinition(BaseModel):
     """
 
 
-class OpenAIToolParam(BaseModel):
+@dataclass
+class OpenAIToolParam:
     function: OpenAIFunctionDefinition
-
     type: Literal["function"]
-    """The type of the tool. Currently, only `function` is supported."""
+    """The type of the tool. Currently, only `function` is supported."""    """The type of the tool. Currently, only `function` is supported."""

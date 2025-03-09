@@ -4,8 +4,6 @@ from copy import deepcopy
 from types import NoneType
 from typing import Literal
 
-from pydantic import BaseModel
-
 _ACCEPTED_TYPES = Literal[
     "string", "integer", "null", "object", "array", "boolean", "number"
 ]
@@ -18,7 +16,6 @@ _DEFAULT_TYPE_MAP: dict[type, _ACCEPTED_TYPES] = {
     list: "array",
     bool: "boolean",
     NoneType: "null",
-    BaseModel: "object",
     datetime.datetime: "string",
     uuid.UUID: "string",
 }

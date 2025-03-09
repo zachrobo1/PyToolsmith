@@ -1,13 +1,28 @@
+from dataclasses import dataclass, field, asdict
 from .tool_definition import ToolDefinition
-from .types.bedrock_types import (
-    AwsBedrockConverseToolConfig,
-    AwsBedrockToolSpecListObject,
-)
 
 
+@dataclass
+class AwsBedrockToolSpecListObject:
+    toolSpec: dict
+
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class AwsBedrockConverseToolConfig:
+    tools: list[AwsBedrockToolSpecListObject]
+
+    def to_dict(self):
+        return {
+            "tools": [tool.to_dict() for tool in self.tools]
+        }
+
+
+@dataclass
 class ToolLibrary:
-    def __init__(self):
-        self._tools: dict[str, ToolDefinition] = {}
+    _tools: dict[str, ToolDefinition] = field(default_factory=dict)
 
     def add_tool(self, tool: ToolDefinition):
         if tool.name in self._tools:
@@ -16,44 +31,21 @@ class ToolLibrary:
         self._tools[tool.name] = tool
 
     def to_openai(self, *, strict_mode=True):
-        return [t.build_json_schema().to_openai(strict_mode=strict_mode) for t in self._tools.values()]
+        return [asdict(t.build_json_schema().to_openai(strict_mode=strict_mode)) for t in self._tools.values()]
 
     def to_anthropic(self, *, use_cache_control: bool = False):
         return [
-            t.build_json_schema().to_anthropic(use_cache_control=use_cache_control)
+            asdict(t.build_json_schema().to_anthropic(use_cache_control=use_cache_control))
             for t in self._tools.values()
         ]
 
     def to_bedrock(self) -> dict:
-        return AwsBedrockConverseToolConfig(
+        bedrock_config = AwsBedrockConverseToolConfig(
             tools=[
                 AwsBedrockToolSpecListObject(
-                    toolSpec=t.build_json_schema().to_bedrock(as_dict=False)
+                    toolSpec=t.build_json_schema().to_bedrock(as_dict=True)
                 )
                 for t in self._tools.values()
             ]
-        ).model_dump(by_alias=True)
-
-    # def call_tool(self, tool_name: str, llm_parameters: dict[str, Any], injected_parameters: dict[str, Any]):
-    #     if tool_name not in self._tools:
-    #         raise ValueError(f"No such tool: {tool_name}")
-    #
-    #     return self._tools[tool_name].call_tool(llm_parameters, injected_parameters)
-
-
-a = {
-    "name": "my_tool",
-    "inputSchema": {
-        "json": {
-            "type": "object",
-            "properties": {
-                "my_param": {
-                    "anyOf": [{"type": "string"}, {"type": "null"}],
-                    "description": "A parameter controlled by the LLM",
-                }
-            },
-            "required": ["my_param"],
-        }
-    },
-    "description": "This a tool that formats a specific string with parameters.  Returns: A formatted string.",
-}
+        )
+        return bedrock_config.to_dict()

@@ -1,7 +1,6 @@
 from copy import deepcopy
+from dataclasses import dataclass, asdict
 from typing import Any
-
-from pydantic import BaseModel
 
 from .types.anthropic_types import (
     AnthropicCacheControlParam,
@@ -21,7 +20,8 @@ from .types.openai_types import (
 from .utils import remove_keys
 
 
-class ToolParameters(BaseModel):
+@dataclass
+class ToolParameters:
     """Parameters extracted from the tool definition."""
 
     input_properties: dict[str, Any]
@@ -46,10 +46,11 @@ class ToolParameters(BaseModel):
             description=self.description,
         )
         if as_dict:
-            return param.model_dump(by_alias=True)
+            # Convert to dict - replaces Pydantic's model_dump
+            return asdict(param)
         return param
 
-    def to_anthropic(self, use_cache_control: bool = False):
+    def to_anthropic(self, use_cache_control: bool = False) -> AnthropicToolParam:
         return AnthropicToolParam(
             name=self.name,
             description=self.description,
