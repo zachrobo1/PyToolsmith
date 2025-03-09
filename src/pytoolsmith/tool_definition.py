@@ -158,8 +158,11 @@ class ToolDefinition:
                 # Handle literals
                 enums.extend(get_args(param_type))
             elif hasattr(param_type, "model_json_schema"):
-                # Handle types with model_json_schema method (like Pydantic models)
+                # Handle types with model_json_schema method (like v2 Pydantic models)
                 schema_dict.update(param_type.model_json_schema())
+            elif hasattr(param_type, "schema"):
+                # Handle types with model_json_schema method (like v1 Pydantic models)
+                schema_dict.update(param_type.schema())
             else:
                 # Handle additional format updates.
                 for formattable_type, format_value in get_format_map().items():
@@ -267,6 +270,9 @@ class ToolDefinition:
             param_type = [type(arg) for arg in get_args(param_type)][0]
 
         if hasattr(param_type, "model_json_schema"):
+            return "object"
+
+        if hasattr(param_type, "schema"):
             return "object"
 
         if isinstance(param_type, EnumType):
