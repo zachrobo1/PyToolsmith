@@ -1,5 +1,3 @@
-from dataclasses import asdict
-
 import pytest
 
 from pytoolsmith import ToolDefinition, ToolLibrary
