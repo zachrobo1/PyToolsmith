@@ -89,7 +89,6 @@ schema.to_bedrock()
 #     },
 #     "description": "This a tool that formats a specific string with parameters. Returns: A formatted string.",
 # }
-
 ```
 
 Additionally, you can use the `ToolLibrary` class to make it easy to pass in a list of tools directly to your LLM call.
@@ -108,8 +107,27 @@ tool_library.to_openai()
 tool_library.to_anthropic()
 tool_library.to_bedrock()
 # All of these are a list that can be passed in directly to your LLM call.
+```
 
+When you implement your LLM call, you can use the tool library to get the tool list, and call it directly.
 
+```python
+# ^ continuing from above
+hardset_parameters = {"tenant_id": "1234"}
+
+# Get the tool name and parameters from the LLM call
+llm_result = call_llm(
+    "Can you help me look up my account? My name is John Doe",
+    tools=tool_library
+)
+
+llm_params, tool_name = parse_llm_result(llm_result)
+
+tool = tool_library.get_tool_from_name(tool_name)
+
+tool_result = tool.call_tool(llm_parameters=llm_params, library_parameters=hardset_parameters)
+
+# Result is ready to be passed back to the next LLM call.
 ```
 
 Additionally, you can control the serialization parameters:
@@ -123,7 +141,6 @@ pytoolsmith_config.update_type_map({ObjectId: "string"})
 
 ## Future Plans
 
-- [ ] Support for directly calling tools and passing back the message in the needed format.
 - [ ] Extendable serialization support (for LLM messages -> function inputs and vise versa)
 
 ### A Note
