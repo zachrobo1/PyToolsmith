@@ -1,8 +1,8 @@
-import datetime
-import uuid
 from copy import deepcopy
+import datetime
 from types import NoneType
 from typing import Literal
+import uuid
 
 _ACCEPTED_TYPES = Literal[
     "string", "integer", "null", "object", "array", "boolean", "number"
@@ -33,13 +33,15 @@ _FORMAT_MAP = deepcopy(_DEFAULT_FORMAT_MAP)
 
 def update_type_map(types_to_update: dict[type, _ACCEPTED_TYPES]):
     """
-    Adds additional types to the type map, which maps parameter inputs to JSON schema specs.
+    Adds additional types to the type map, which maps parameter inputs to JSON schema 
+    specs.
     Can be used to overwrite parameters as well as set new ones.
 
     Args:
         types_to_update: A dictionary of types to set
 
-    Examples: Can pass in {ObjectID: "string"} to be able to handle functions that required ObjectIDs in them.
+    Examples: Can pass in {ObjectID: "string"} to be able to handle functions that 
+    required ObjectIDs in them.
 
     Returns: None
 
@@ -49,14 +51,13 @@ def update_type_map(types_to_update: dict[type, _ACCEPTED_TYPES]):
 
 def update_format_map(format_types_to_update: dict[type, str]):
     """
-    Adds additional types to the format map, which maps types to the `format` parameter on the definition.
+    Adds additional types to the format map, which maps types to the `format` parameter 
+    on the definition.
     Can be used to overwrite parameters as well as set new ones.
 
     Args:
         format_types_to_update: A dictionary of types to set
-
-    Examples: Can pass in {ObjectID: "string"} to be able to handle functions that required ObjectIDs in them.
-
+        
     Returns: None
 
     """

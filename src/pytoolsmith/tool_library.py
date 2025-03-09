@@ -1,23 +1,10 @@
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
+
 from .tool_definition import ToolDefinition
-
-
-@dataclass
-class AwsBedrockToolSpecListObject:
-    toolSpec: dict
-
-    def to_dict(self):
-        return asdict(self)
-
-
-@dataclass
-class AwsBedrockConverseToolConfig:
-    tools: list[AwsBedrockToolSpecListObject]
-
-    def to_dict(self):
-        return {
-            "tools": [tool.to_dict() for tool in self.tools]
-        }
+from .types.bedrock_types import (
+    AwsBedrockConverseToolConfig,
+    AwsBedrockToolSpecListObject,
+)
 
 
 @dataclass
@@ -30,12 +17,22 @@ class ToolLibrary:
 
         self._tools[tool.name] = tool
 
+    def get_tool_from_name(self, name: str) -> ToolDefinition:
+        try:
+            return self._tools[name]
+        except KeyError:
+            raise ValueError(f"Tool not found: {name}")
+
     def to_openai(self, *, strict_mode=True):
-        return [asdict(t.build_json_schema().to_openai(strict_mode=strict_mode)) for t in self._tools.values()]
+        return [
+            asdict(t.build_json_schema().to_openai(strict_mode=strict_mode))
+            for t in self._tools.values()
+        ]
 
     def to_anthropic(self, *, use_cache_control: bool = False):
         return [
-            asdict(t.build_json_schema().to_anthropic(use_cache_control=use_cache_control))
+            asdict(
+                t.build_json_schema().to_anthropic(use_cache_control=use_cache_control))
             for t in self._tools.values()
         ]
 

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Any
 
 from .types.anthropic_types import (
@@ -64,8 +64,9 @@ class ToolParameters:
 
     def to_openai(self, *, strict_mode=True) -> OpenAIToolParam:
         """
-        Strict mode has a better guarantee that the LLM will use the tool correctly. However, it removes additional
-        formatting information and defaults from the LLM's context.
+        Strict mode has a better guarantee that the LLM will use the tool correctly. 
+        However, it removes additional formatting information and defaults from the 
+        LLM's context.
         """
         params = deepcopy(self.input_properties)
         if strict_mode:
@@ -82,7 +83,8 @@ class ToolParameters:
                     type="object",
                     additionalProperties=not strict_mode,
                     properties=params,
-                    required=list(params.keys()) if strict_mode else self.required_parameters,
+                    required=list(
+                        params.keys()) if strict_mode else self.required_parameters,
                 ),
                 strict=strict_mode,
             ),

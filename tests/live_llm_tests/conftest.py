@@ -1,12 +1,12 @@
 import os
-import uuid
 from typing import Literal
+import uuid
 
-import boto3
-import pytest
 from anthropic import Anthropic
+import boto3
 from dotenv import load_dotenv
 from openai import OpenAI
+import pytest
 
 from pytoolsmith import ToolDefinition, ToolLibrary
 
@@ -23,7 +23,8 @@ def basic_tool_library() -> ToolLibrary:
         Searches the database for a user's full name.
         Args:
             user_id: The ID of the user whose name we want to look up.
-            fields_to_include: A list of fields to include in the response. Can set to `null` to return all fields.
+            fields_to_include: A list of fields to include in the response. 
+            Can set to `null` to return all fields.
 
         Returns: The user's information that was specified.
 

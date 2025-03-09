@@ -3,6 +3,9 @@
 reformat:
 	uv run ruff check --fix .
 
+lint-in-ci:
+	ruff check --output-format=github .
+
 setup-deps:
 	uv sync --frozen
 

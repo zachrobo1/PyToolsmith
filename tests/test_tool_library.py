@@ -47,3 +47,12 @@ def test_cast_library_to_anthropic(filled_tool_library):
     ]
 
     assert anthropic_result == exp_result
+
+
+def test_get_tool_from_name(filled_tool_library):
+    with pytest.raises(ValueError) as excinfo:
+        filled_tool_library.get_tool_from_name("_some_other_tool")
+    assert excinfo.value.args[0] == "Tool not found: _some_other_tool"
+
+    assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(
+        function=_func_to_test_1)
