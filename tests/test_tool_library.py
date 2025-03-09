@@ -54,4 +54,5 @@ def test_get_tool_from_name(filled_tool_library):
         filled_tool_library.get_tool_from_name("_some_other_tool")
     assert excinfo.value.args[0] == "Tool not found: _some_other_tool"
 
-    assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(function=_func_to_test_1)
+    assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(
+        function=_func_to_test_1)

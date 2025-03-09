@@ -80,8 +80,10 @@ def test_build_tool_parameter():
                     },
                     "k": {
                         "type": "integer",
-                        "description": "Number to return. Include some other text, that will overflow to the "
-                                       "next line. This is a pretty long line that should be wrapped.",
+                        "description": "Number to return. Include some other text, "
+                                       "that will overflow to the "
+                                       "next line. This is a pretty long line that "
+                                       "should be wrapped.",
                         "default": 10,
                         "minimum": 1,
                     },
@@ -174,7 +176,8 @@ def _pydantic_func(
 ):
     print(f"The person's name is {contact_info.first_name} {contact_info.last_name}")
     print(
-        f"The 2nd person's name is {contact_info_2.first_name} {contact_info_2.last_name}"
+        f"The 2nd person's name is {contact_info_2.first_name} "
+        f"{contact_info_2.last_name}"
     )
     return ""
 
@@ -296,7 +299,9 @@ def _breaking_function(id_: ObjectId) -> str:
 
 
 def test_breaking_tool():
-    """Tests to make sure that when an invalid parameter type is set, it raises an error."""
+    """
+    Tests to make sure that when an invalid parameter type is set, it raises an error.
+    """
     assert ObjectId not in pytoolsmith_config.get_type_map()
 
     with pytest.raises(ValueError):

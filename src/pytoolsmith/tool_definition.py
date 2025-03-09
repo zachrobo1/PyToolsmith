@@ -21,7 +21,6 @@ from .pytoolsmith_config import get_format_map
 from .pytoolsmith_config.mappings import get_type_map
 from .tool_parameters import ToolParameters
 
-# TODO: figure out how to type this so response type is clear if it's a string or a dict.
 R = TypeVar("R", dict, str, list[str])
 
 
@@ -158,7 +157,7 @@ class ToolDefinition:
                     param_name="item",
                     param_info=mock_param,
                     param_desc_map={},  # No descriptions for array items
-                    additional_parameters={},  # No additional parameters for array items
+                    additional_parameters={},  # No addl. parameters for array items
                     is_array_item=True,  # Flag that we're processing an array item
                 )
 
@@ -342,7 +341,10 @@ class ToolDefinition:
 
     @staticmethod
     def _create_default_value(default_value: Any) -> str | None:
-        """Tries to create a default value from the given default value. If it can't, returns None."""
+        """
+        Tries to create a default value from the given default value. 
+        If it can't, returns None.
+        """
 
         if isinstance(default_value, str | int | float | bool):
             return default_value

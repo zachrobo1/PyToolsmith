@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    needs: [ "format-check" ]
     runs-on: ubuntu-latest
 
     steps:

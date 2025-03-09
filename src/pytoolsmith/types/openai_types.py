@@ -35,4 +35,4 @@ class OpenAIFunctionDefinition:
 class OpenAIToolParam:
     function: OpenAIFunctionDefinition
     type: Literal["function"]
-    """The type of the tool. Currently, only `function` is supported."""    """The type of the tool. Currently, only `function` is supported."""
+    """The type of the tool. Currently, only `function` is supported."""

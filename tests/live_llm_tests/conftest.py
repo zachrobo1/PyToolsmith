@@ -23,7 +23,8 @@ def basic_tool_library() -> ToolLibrary:
         Searches the database for a user's full name.
         Args:
             user_id: The ID of the user whose name we want to look up.
-            fields_to_include: A list of fields to include in the response. Can set to `null` to return all fields.
+            fields_to_include: A list of fields to include in the response. 
+            Can set to `null` to return all fields.
 
         Returns: The user's information that was specified.
 

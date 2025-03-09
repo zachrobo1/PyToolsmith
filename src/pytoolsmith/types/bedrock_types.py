@@ -4,7 +4,9 @@ from typing import Literal
 
 @dataclass
 class AwsBedrockToolInputSchema:
-    """Defines the JSON-schema compliant input schema for a tool to be used by bedrock"""
+    """
+    Defines the JSON-schema compliant input schema for a tool to be used by bedrock
+    """
 
     type: Literal["object"]
     properties: dict[str, dict]
@@ -22,7 +24,10 @@ class AwsBedrockToolSchemaJson:
 
 @dataclass
 class AwsBedrockToolParam:
-    """Gives Bedrock information regarding a tool, it's name, what it's used for, and how to interact with it."""
+    """
+    Gives Bedrock information regarding a tool, it's name, what it's used for, and how 
+    to interact with it.
+    """
 
     name: str
     inputSchema: AwsBedrockToolSchemaJson
