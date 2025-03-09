@@ -1,12 +1,12 @@
-import uuid
 from dataclasses import asdict
 from datetime import datetime
 from enum import StrEnum, auto
 from typing import Literal
+import uuid
 
-import pytest
 from bson import ObjectId
 from pydantic import BaseModel
+import pytest
 
 from pytoolsmith import ToolDefinition, ToolParameters, pytoolsmith_config
 
@@ -301,3 +301,33 @@ def test_breaking_tool():
 
     with pytest.raises(ValueError):
         ToolDefinition(function=_breaking_function)
+
+
+def test_calling_tool():
+    """
+    Tests calling the tool to make sure it works.
+    In the future, can expand to ensure serialization works as expected.
+    """
+    injected_params = {
+        "tenant_id": "1234"
+    }
+    llm_params = {
+        "db_name": "psql_db",
+        "sql": "SELECT * FROM table_name"
+    }
+
+    def checking_function(tenant_id: str, db_name: str, sql: str):
+        assert tenant_id == "1234"
+        assert db_name == "psql_db"
+        assert sql == "SELECT * FROM table_name"
+        return True
+
+    tool = ToolDefinition(function=checking_function, injected_parameters=["tenant_id"])
+
+    assert (
+            tool.call_tool(
+                llm_parameters=llm_params,
+                library_parameters=injected_params
+            )
+            is True
+    )

@@ -1,7 +1,7 @@
 # File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
 
 from dataclasses import dataclass
-from typing_extensions import Literal
+from typing import Literal
 
 
 @dataclass

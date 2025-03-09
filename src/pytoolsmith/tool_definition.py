@@ -1,13 +1,14 @@
-import inspect
+from collections.abc import Callable
+from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import EnumType
+import inspect
 from types import GenericAlias, UnionType
+
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
-    Callable,
     NewType,
-    Self,
     _LiteralGenericAlias,
     _UnionGenericAlias,
     get_args,
@@ -98,6 +99,19 @@ class ToolDefinition:
             input_properties=param_map,
             description=description,
         )
+
+    def call_tool(
+            self, llm_parameters: dict[str, Any], library_parameters: dict[str, Any]
+    ) -> Any:
+        """Calls the tool with the given parameters."""
+
+        # Merge the library parameters with the LLM parameters
+        parameters = deepcopy(llm_parameters)
+        library_parameters = deepcopy(library_parameters)
+        for injected_parameter in self.injected_parameters:
+            parameters[injected_parameter] = library_parameters[injected_parameter]
+
+        return self.function(**parameters)
 
     def _get_type_for_parameter(
             self,

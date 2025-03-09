@@ -1,8 +1,8 @@
-import datetime
-import uuid
 from copy import deepcopy
+import datetime
 from types import NoneType
 from typing import Literal
+import uuid
 
 _ACCEPTED_TYPES = Literal[
     "string", "integer", "null", "object", "array", "boolean", "number"

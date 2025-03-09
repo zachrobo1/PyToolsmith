@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Literal
 
 
@@ -35,9 +35,17 @@ class AwsBedrockToolSpecListObject:
 
     toolSpec: AwsBedrockToolParam
 
+    def to_dict(self):
+        return asdict(self)
+
 
 @dataclass
 class AwsBedrockConverseToolConfig:
     """What gets passed into Bedrock to configure the tools available to the LLM"""
 
     tools: list[AwsBedrockToolSpecListObject]
+
+    def to_dict(self):
+        return {
+            "tools": [tool.to_dict() for tool in self.tools]
+        }
