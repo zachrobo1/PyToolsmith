@@ -4,10 +4,12 @@ from pytoolsmith import ToolDefinition, ToolLibrary
 
 
 def _func_to_test_1(a: str) -> str:
+    """Desc for func 1"""
     return a
 
 
 def _func_to_test_2(b: str) -> str:
+    """Desc for func 2"""
     return b
 
 
@@ -34,13 +36,13 @@ def test_cast_library_to_anthropic(filled_tool_library):
     exp_result = [
         {
             "cache_control": None,
-            "description": "",
+            "description": "Desc for func 1",
             "input_schema": {"properties": {"a": {"type": "string"}}, "type": "object"},
             "name": "_func_to_test_1",
         },
         {
             "cache_control": None,
-            "description": "",
+            "description": "Desc for func 2",
             "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object"},
             "name": "_func_to_test_2",
         },
@@ -56,3 +58,24 @@ def test_get_tool_from_name(filled_tool_library):
 
     assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(
         function=_func_to_test_1)
+
+
+def test_get_all_tool_names(filled_tool_library):
+    assert set(filled_tool_library.get_all_tool_names()) == (
+        {"_func_to_test_1", "_func_to_test_2"}
+    )
+
+
+def test_get_tool_descriptions(filled_tool_library):
+    assert filled_tool_library.get_tool_descriptions() == (
+        {"_func_to_test_1": "Desc for func 1",
+         "_func_to_test_2": "Desc for func 2"}
+    )
+
+
+def test_subset_library(filled_tool_library):
+    with pytest.raises(ValueError):
+        filled_tool_library.subset(["other_func"])
+
+    subset_library = filled_tool_library.subset(["_func_to_test_1"])
+    assert subset_library.get_all_tool_names() == ["_func_to_test_1"]

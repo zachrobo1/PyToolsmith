@@ -46,6 +46,8 @@ class ToolDefinition:
     user_message: str | None = None
     """An optional message to show the user while the tool is being called."""
 
+    _schema_cache: ToolParameters | None = field(default=None, init=False, repr=False)
+
     def __post_init__(self) -> None:
         """Validate the schema can be built after initialization."""
         try:
@@ -66,6 +68,8 @@ class ToolDefinition:
             self,
     ) -> ToolParameters:
         """Builds a tool JSON schema for use in Bedrock from the tool definition."""
+        if self._schema_cache:
+            return self._schema_cache
 
         func = self.function
         additional_parameters = self.additional_parameters
@@ -92,12 +96,14 @@ class ToolDefinition:
             if is_required:
                 required_parameters.append(param_name)
 
-        return ToolParameters(
+        # Store result in cache before returning
+        self._schema_cache = ToolParameters(
             name=self.name,
             required_parameters=required_parameters,
             input_properties=param_map,
             description=description,
         )
+        return self._schema_cache
 
     def call_tool(
             self, llm_parameters: dict[str, Any], library_parameters: dict[str, Any]
