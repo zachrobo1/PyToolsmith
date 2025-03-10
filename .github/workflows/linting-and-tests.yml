@@ -45,7 +45,7 @@ jobs:
       - name: Setup test environment
         run: make setup-test
 
-      - name: Run tests with PYTHONPATH
+      - name: Run tests
         run: make test-in-ci
 
       - name: Upload coverage to Codecov
