@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict
 
 from .tool_definition import ToolDefinition
 from .types.bedrock_types import (
@@ -7,9 +7,10 @@ from .types.bedrock_types import (
 )
 
 
-@dataclass
 class ToolLibrary:
-    _tools: dict[str, ToolDefinition] = field(default_factory=dict)
+
+    def __init__(self):
+        self._tools: dict[str, ToolDefinition] = {}
 
     def add_tool(self, tool: ToolDefinition):
         if tool.name in self._tools:
@@ -22,6 +23,19 @@ class ToolLibrary:
             return self._tools[name]
         except KeyError:
             raise ValueError(f"Tool not found: {name}")
+
+    def get_all_tool_names(self) -> list[str]:
+        """Returns a list of the names of all the tools in the library."""
+        return list(self._tools.keys())
+
+    def get_tool_descriptions(self) -> dict[str, str]:
+        """
+        Returns a mapping tool names with the descriptions of the tool in the library.
+        """
+        return {
+            name: tool.build_json_schema().description
+            for name, tool in self._tools.items()
+        }
 
     def to_openai(self, *, strict_mode=True):
         return [
@@ -45,4 +59,15 @@ class ToolLibrary:
                 for t in self._tools.values()
             ]
         )
-        return bedrock_config.to_dict()
+        return asdict(bedrock_config)
+
+    def subset(self, names: list[str]) -> "ToolLibrary":
+        """Returns a subset of tools as a new tool library."""
+
+        if not all(name in self._tools for name in names):
+            raise ValueError(f"Not all tools in {names} are in the library.")
+
+        subset = ToolLibrary()
+        for name in names:
+            subset.add_tool(self.get_tool_from_name(name))
+        return subset

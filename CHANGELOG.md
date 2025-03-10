@@ -2,6 +2,21 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.4 - March 9, 2025
+
+### Added
+
+- Additional methods on `ToolLibrary` to support subsetting of tools. These include:
+    - `get_all_tool_names()` - Returns a list of tool names as a string.
+    - `get_tool_descriptions()` - Returns a dictionary of `{tool_name: tool_description}`
+    - `subset()` - From a list of tool names, returns a new `ToolLibrary` with only those tools.
+
+### Updated
+
+- Updated Readme to have some additional sections, as well as better examples & formatting.
+- Updated `ToolDefinition` to save its tool schema rather than re-generating it every time `build_json_schema` is
+  called.
+
 ## 0.1.3 - March 9, 2025
 
 ### Added

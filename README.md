@@ -47,21 +47,31 @@ from pytoolsmith import ToolDefinition
 
 
 # 1. Define your function
-def my_tool(my_param: str | None, my_controlled_param: str = "hello") -> str:
+def get_user_by_id(user_id: str, tenant_id: str) -> dict:
     """
-    This a tool that formats a specific string with parameters.
+    This a tool that gets a user by its ID.
    
     Args:
-       my_param: A parameter controlled by the LLM
-       my_controlled_param: A parameter controlled by the application.
+       user_id: The user to search for.
+       tenant_id: The tenant to search inside of
        
-    Returns: A formatted string.
+    Returns: A dictionary representing the user.
     """
-    return f"I did a search for {my_param} with controlled parameter {my_controlled_param}!"
+    # Your tool logic here.
+    return {
+        "user_id": user_id,
+        "tenant_id": tenant_id,
+        "user_name": "John Doe",
+        "email": "john.doe@example.com",
+        "phone": "123-456-7890"
+    }
 
 
 # 2. Make a tool definition, calling out the injected parameter.
-tool_definition = ToolDefinition(function=my_tool, injected_parameters=["my_controlled_param"])
+tool_definition = ToolDefinition(
+    function=get_user_by_id,
+    injected_parameters=["tenant_id"]
+)
 
 # 3. Get a schema representing the tool automatically
 schema = tool_definition.build_json_schema()
@@ -74,20 +84,21 @@ schema.to_bedrock()
 
 # Bedrock Output:
 # {
-#     "name": "my_tool",
+#     "name": "get_user_by_id",
 #     "inputSchema": {
 #         "json": {
 #             "type": "object",
 #             "properties": {
-#                 "my_param": {
-#                     "anyOf": [{"type": "string"}, {"type": "null"}],
-#                     "description": "A parameter controlled by the LLM",
+#                 "user_id": {
+#                     "type": "string",
+#                     "description": "The user to search for.",
 #                 }
 #             },
 #             "required": ["my_param"],
 #         }
 #     },
-#     "description": "This a tool that formats a specific string with parameters. Returns: A formatted string.",
+#     "description": "This a tool that gets a user by its ID. "
+#                    "Returns: A dictionary representing the user.",
 # }
 ```
 
@@ -113,20 +124,34 @@ When you implement your LLM call, you can use the tool library to get the tool l
 
 ```python
 # ^ continuing from above
+from anthropic import Anthropic
+from anthropic.types import MessageParam, TextBlockParam
+
+client = Anthropic()
+
 hardset_parameters = {"tenant_id": "1234"}
 
 # Get the tool name and parameters from the LLM call
-llm_result = call_llm(
-    "Can you help me look up my account? My name is John Doe",
-    tools=tool_library
+llm_result = client.messages.create(
+    system="You are a helpful assistant who can look up users by their ID.",
+    tools=tool_library.to_anthropic(),
+    model="claude-3-7-sonnet-latest",
+    messages=[
+        MessageParam(
+            role="user",
+            content=[TextBlockParam(text="Can you help me look up my account? My id is 5678", type="text")],
+        )
+    ],
+    max_tokens=100,
 )
 
-llm_params, tool_name = parse_llm_result(llm_result)
+llm_set_params, tool_name = parse_llm_result(llm_result)
+# `llm_set_params` would be like: {"user_id": "5678"}
+# This was decided by the LLM and passed back as something to call.
 
 tool = tool_library.get_tool_from_name(tool_name)
 
-tool_result = tool.call_tool(llm_parameters=llm_params, library_parameters=hardset_parameters)
-
+tool_result = tool.call_tool(llm_parameters=llm_set_params, library_parameters=hardset_parameters)
 # Result is ready to be passed back to the next LLM call.
 ```
 
@@ -137,10 +162,26 @@ from bson import ObjectId
 from pytoolsmith import pytoolsmith_config
 
 pytoolsmith_config.update_type_map({ObjectId: "string"})
+
+
+# Now you can define the following function as a tool:
+def get_object_by_id(object_id: ObjectId) -> dict:
+    ...
 ```
+
+### Additional Configuration
+
+If needed, additional OpenAPI spec can be passed into a `ToolDefinition` constructor with the
+
+The following client-specific configuration options are available as options on the `to_<provider>` methods:
+
+- [OpenAI Strict Mode](https://platform.openai.com/docs/guides/function-calling#strict-mode) with `strict_model=True`
+- [Anthropic Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) with
+  `use_cache_control=True`
 
 ## Future Plans
 
+- [ ] Support for tuples as fixed-length lists
 - [ ] Extendable serialization support (for LLM messages -> function inputs and vise versa)
 
 ### A Note
