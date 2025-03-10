@@ -2,7 +2,7 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
-## 0.1.4 - March 9, 2025
+## 0.1.4 - March 10, 2025
 
 ### Added
 
