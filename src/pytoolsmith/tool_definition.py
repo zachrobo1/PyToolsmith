@@ -1,9 +1,10 @@
-import inspect
 from collections.abc import Callable
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import EnumType
+import inspect
 from types import GenericAlias, UnionType
+
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
