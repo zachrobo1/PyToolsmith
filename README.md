@@ -4,9 +4,10 @@ A lightweight Python library that simplifies the process of exposing functions a
 
 ### Status
 
-![Tests](https://github.com/zachrobo1/PyToolsmith/actions/workflows/tests.yml/badge.svg)
+![Tests](https://github.com/zachrobo1/PyToolsmith/actions/workflows/linting-and-tests.yml/badge.svg)
 ![PyPI - Version](https://img.shields.io/pypi/v/pytoolsmith)
 [![codecov](https://codecov.io/gh/zachrobo1/PyToolsmith/graph/badge.svg?token=5SQEOF1TV2)](https://codecov.io/gh/zachrobo1/PyToolsmith)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## What is this?
 

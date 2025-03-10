@@ -36,13 +36,13 @@ def test_cast_library_to_anthropic(filled_tool_library):
     exp_result = [
         {
             "cache_control": None,
-            "description": "",
+            "description": "Desc for func 1",
             "input_schema": {"properties": {"a": {"type": "string"}}, "type": "object"},
             "name": "_func_to_test_1",
         },
         {
             "cache_control": None,
-            "description": "",
+            "description": "Desc for func 2",
             "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object"},
             "name": "_func_to_test_2",
         },
