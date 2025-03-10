@@ -171,6 +171,13 @@ def get_object_by_id(object_id: ObjectId) -> dict:
 
 ### Additional Configuration
 
+**Library Subsetting**
+<br>
+Call the `subset()` method on a `ToolLibrary` to create a subset of the library.
+This can be useful for reducing the number of tools passed to the LLM.
+
+**Vendor-Specific Options**
+<br>
 If needed, additional OpenAPI spec can be passed into a `ToolDefinition` constructor with the
 
 The following client-specific configuration options are available as options on the `to_<provider>` methods:
