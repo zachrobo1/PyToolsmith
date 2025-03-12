@@ -174,8 +174,11 @@ def get_object_by_id(object_id: ObjectId) -> dict:
 
 **Library Subsetting**
 <br>
-Call the `subset()` method on a `ToolLibrary` to create a subset of the library.
-This can be useful for reducing the number of tools passed to the LLM.
+Sometimes you may not want to pass all of your tools to the LLM.
+Subsetting allows you to select a smaller set of tools to pass in- either individually or by tagging them with
+a `tool_group` parameter on your ToolDefinitions.
+
+To use, call the `subset()` method on a ToolLibrary instance to get a smaller library generated.
 
 **Vendor-Specific Options**
 <br>
