@@ -46,6 +46,12 @@ class ToolDefinition:
     user_message: str | None = None
     """An optional message to show the user while the tool is being called."""
 
+    tool_group: str | None = None
+    """
+    An optional group that the tool belongs to. 
+    Can be used as a way to filter which tools the LLM gets using `subset`.
+    """
+
     _schema_cache: ToolParameters | None = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
