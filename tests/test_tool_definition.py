@@ -327,12 +327,20 @@ def test_calling_tool():
         assert sql == "SELECT * FROM table_name"
         return True
 
-    tool = ToolDefinition(function=checking_function, injected_parameters=["tenant_id"])
+    tool = ToolDefinition(function=checking_function, injected_parameters=["tenant_id"],
+                          user_message="Checking function using command: `{{sql}}`")
 
-    assert (
-            tool.call_tool(
-                llm_parameters=llm_params,
-                library_parameters=injected_params
-            )
-            is True
+    res_no_message = tool.call_tool(
+        llm_parameters=llm_params,
+        library_parameters=injected_params
     )
+    assert res_no_message is True
+
+    res_w_message = tool.call_tool(
+        llm_parameters=llm_params,
+        library_parameters=injected_params,
+        include_message=True
+    )
+    assert ((True,
+             "Checking function using command: `SELECT * FROM table_name`") ==
+            res_w_message)
