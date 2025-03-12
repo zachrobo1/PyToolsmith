@@ -8,11 +8,13 @@ from types import GenericAlias, UnionType
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
+    Literal,
     NewType,
     _LiteralGenericAlias,
     _UnionGenericAlias,
     get_args,
     get_origin,
+    overload,
 )
 
 from typing_extensions import TypeVar
@@ -44,7 +46,11 @@ class ToolDefinition:
     """
 
     user_message: str | None = None
-    """An optional message to show the user while the tool is being called."""
+    """
+    An optional message to show the user while the tool is being called. Can use 
+    mustache syntax to insert values from the function call. However- be certain that 
+    these values will be able to be cast to a string!
+    """
 
     tool_group: str | None = None
     """
@@ -111,10 +117,26 @@ class ToolDefinition:
         )
         return self._schema_cache
 
+    @overload
+    def call_tool(self, llm_parameters: dict[str, Any],
+                  library_parameters: dict[str, Any],
+                  include_message: Literal[False] = False) -> Any:
+        ...
+
+    @overload
+    def call_tool(self, llm_parameters: dict[str, Any],
+                  library_parameters: dict[str, Any],
+                  include_message: Literal[True] = True) -> tuple[Any, str | None]:
+        ...
+
     def call_tool(
-            self, llm_parameters: dict[str, Any], library_parameters: dict[str, Any]
-    ) -> Any:
-        """Calls the tool with the given parameters."""
+            self, llm_parameters: dict[str, Any], library_parameters: dict[str, Any],
+            include_message: bool = False
+    ) -> Any | tuple[Any, str | None]:
+        """
+        Calls the tool with the given parameters. 
+        If `include_message` is True, will also return a user message.
+        """
 
         # Merge the library parameters with the LLM parameters
         parameters = deepcopy(llm_parameters)
@@ -122,7 +144,15 @@ class ToolDefinition:
         for injected_parameter in self.injected_parameters:
             parameters[injected_parameter] = library_parameters[injected_parameter]
 
-        return self.function(**parameters)
+        result = self.function(**parameters)
+        if include_message:
+            message = self.user_message
+            if message and "{{" in message:
+                for key, value in parameters.items():
+                    message = message.replace("{{" + key + "}}", str(value))
+
+            return result, message
+        return result
 
     def _get_type_for_parameter(
             self,

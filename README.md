@@ -71,7 +71,10 @@ def get_user_by_id(user_id: str, tenant_id: str) -> dict:
 # 2. Make a tool definition, calling out the injected parameter.
 tool_definition = ToolDefinition(
     function=get_user_by_id,
-    injected_parameters=["tenant_id"]
+    injected_parameters=["tenant_id"],
+    # You can also define a message that can be sent to the user here.
+    # Use mustache template syntax to inject parameter values into the message.
+    user_message="Looking up a user using id {{user_id}}."
 )
 
 # 3. Get a schema representing the tool automatically
@@ -152,8 +155,13 @@ llm_set_params, tool_name = parse_llm_result(llm_result)
 
 tool = tool_library.get_tool_from_name(tool_name)
 
-tool_result = tool.call_tool(llm_parameters=llm_set_params, library_parameters=hardset_parameters)
+tool_result, user_message = tool.call_tool(
+    llm_parameters=llm_set_params,
+    library_parameters=hardset_parameters,
+    include_message=True
+)
 # Result is ready to be passed back to the next LLM call.
+# The user message will be `Looking up a user using id 5678.`
 ```
 
 Additionally, you can control the serialization parameters:

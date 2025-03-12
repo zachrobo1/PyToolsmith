@@ -7,6 +7,7 @@ All notable changes to PyToolsmith will be documented in this file.
 ### Added
 
 - Support for tooling groups added
+- Support for custom tool messages added
 
 ## 0.1.4 - March 10, 2025
 
