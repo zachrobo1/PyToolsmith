@@ -1,3 +1,4 @@
+from collections import defaultdict
 from dataclasses import asdict
 
 from .tool_definition import ToolDefinition
@@ -11,6 +12,8 @@ class ToolLibrary:
 
     def __init__(self):
         self._tools: dict[str, ToolDefinition] = {}
+        self._tool_groups: dict[str, list[str]] = defaultdict(list)
+        """Map of groups to the tool names inside of them."""
 
     def add_tool(self, tool: ToolDefinition):
         if tool.name in self._tools:
@@ -18,15 +21,27 @@ class ToolLibrary:
 
         self._tools[tool.name] = tool
 
+        if tool.tool_group:
+            self._tool_groups[tool.tool_group].append(tool.name)
+
     def get_tool_from_name(self, name: str) -> ToolDefinition:
-        try:
-            return self._tools[name]
-        except KeyError:
+        if name not in self._tools:
             raise ValueError(f"Tool not found: {name}")
+        return self._tools[name]
+
+    def get_tool_names_in_group(self, group: str) -> list[str]:
+        """Gets the names of all the tools in the group"""
+        if group not in self._tool_groups:
+            raise ValueError(f"Group not found: {group}")
+        return self._tool_groups[group]
 
     def get_all_tool_names(self) -> list[str]:
         """Returns a list of the names of all the tools in the library."""
         return list(self._tools.keys())
+
+    def get_all_tool_group_names(self) -> list[str]:
+        """Returns a list of the names of all the tools in the library."""
+        return list(self._tool_groups.keys())
 
     def get_tool_descriptions(self) -> dict[str, str]:
         """
@@ -61,13 +76,25 @@ class ToolLibrary:
         )
         return asdict(bedrock_config)
 
-    def subset(self, names: list[str]) -> "ToolLibrary":
-        """Returns a subset of tools as a new tool library."""
+    def subset(self, names: list[str] | None = None,
+               groups: list[str] | None = None) -> "ToolLibrary":
+        """
+        Returns a subset of tools as a new tool library.
+        Uses a `or` condition to filter the tools- i.e. any tool that either has a name
+        in the list or is in a specified group..\
+        """
+        names = names or []
 
-        if not all(name in self._tools for name in names):
-            raise ValueError(f"Not all tools in {names} are in the library.")
+        all_accepted_tool_names = set(names)
+        if groups:
+            for group in groups:
+                all_accepted_tool_names.update(self.get_tool_names_in_group(group))
+
+        if not all(name in self._tools for name in all_accepted_tool_names):
+            raise ValueError(
+                f"Not all tools in {', '.join(all_accepted_tool_names)} are in the library.")
 
         subset = ToolLibrary()
-        for name in names:
+        for name in all_accepted_tool_names:
             subset.add_tool(self.get_tool_from_name(name))
         return subset

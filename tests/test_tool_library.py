@@ -15,8 +15,8 @@ def _func_to_test_2(b: str) -> str:
 
 @pytest.fixture
 def filled_tool_library():
-    tool_1 = ToolDefinition(function=_func_to_test_1)
-    tool_2 = ToolDefinition(function=_func_to_test_2)
+    tool_1 = ToolDefinition(function=_func_to_test_1, tool_group="1s")
+    tool_2 = ToolDefinition(function=_func_to_test_2, tool_group="2s")
     tool_library = ToolLibrary()
     tool_library.add_tool(tool_1)
     tool_library.add_tool(tool_2)
@@ -57,7 +57,7 @@ def test_get_tool_from_name(filled_tool_library):
     assert excinfo.value.args[0] == "Tool not found: _some_other_tool"
 
     assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(
-        function=_func_to_test_1)
+        function=_func_to_test_1, tool_group="1s")
 
 
 def test_get_all_tool_names(filled_tool_library):
@@ -79,3 +79,18 @@ def test_subset_library(filled_tool_library):
 
     subset_library = filled_tool_library.subset(["_func_to_test_1"])
     assert subset_library.get_all_tool_names() == ["_func_to_test_1"]
+
+    subset_library = filled_tool_library.subset(["_func_to_test_1", "_func_to_test_2"])
+    assert set(subset_library.get_all_tool_names()) == set(
+        filled_tool_library.get_all_tool_names())
+
+
+def test_subset_library_from_groups(filled_tool_library):
+    with pytest.raises(ValueError):
+        filled_tool_library.subset(groups=["other_group"])
+
+    subset_library = filled_tool_library.subset(groups=["1s"])
+    assert subset_library.get_all_tool_names() == ["_func_to_test_1"]
+    subset_library = filled_tool_library.subset(groups=["1s", "2s"])
+    assert set(subset_library.get_all_tool_names()) == set(
+        filled_tool_library.get_all_tool_names())
