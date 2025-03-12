@@ -66,6 +66,12 @@ def test_get_all_tool_names(filled_tool_library):
     )
 
 
+def test_get_all_tool_group_names(filled_tool_library):
+    assert set(filled_tool_library.get_all_tool_group_names()) == (
+        {"1s", "2s"}
+    )
+
+
 def test_get_tool_descriptions(filled_tool_library):
     assert filled_tool_library.get_tool_descriptions() == (
         {"_func_to_test_1": "Desc for func 1",
