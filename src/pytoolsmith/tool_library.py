@@ -92,7 +92,9 @@ class ToolLibrary:
 
         if not all(name in self._tools for name in all_accepted_tool_names):
             raise ValueError(
-                f"Not all tools in {', '.join(all_accepted_tool_names)} are in the library.")
+                f"Not all tools in {', '.join(all_accepted_tool_names)} are in the "
+                f"library."
+            )
 
         subset = ToolLibrary()
         for name in all_accepted_tool_names:
