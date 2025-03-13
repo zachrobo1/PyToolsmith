@@ -131,6 +131,8 @@ When you implement your LLM call, you can use the tool library to get the tool l
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlockParam
 
+from pytoolsmith import ToolDefinition
+
 client = Anthropic()
 
 hardset_parameters = {"tenant_id": "1234"}
@@ -153,12 +155,13 @@ llm_set_params, tool_name = parse_llm_result(llm_result)
 # `llm_set_params` would be like: {"user_id": "5678"}
 # This was decided by the LLM and passed back as something to call.
 
-tool = tool_library.get_tool_from_name(tool_name)
+tool: ToolDefinition = tool_library.get_tool_from_name(tool_name)
 
-tool_result, user_message = tool.call_tool(
+user_message = tool.format_message_for_call(llm_parameters=llm_set_params, hardset_parameters=hardset_parameters)
+# The user message will be `Looking up a user using id 5678.`
+tool_result = tool.call_tool(
     llm_parameters=llm_set_params,
-    library_parameters=hardset_parameters,
-    include_message=True
+    hardset_parameters=hardset_parameters,
 )
 # Result is ready to be passed back to the next LLM call.
 # The user message will be `Looking up a user using id 5678.`

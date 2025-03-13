@@ -130,7 +130,9 @@ class ToolDefinition:
         ...
 
     def call_tool(
-            self, llm_parameters: dict[str, Any], library_parameters: dict[str, Any],
+            self,
+            llm_parameters: dict[str, Any],
+            hardset_parameters: dict[str, Any],
             include_message: bool = False
     ) -> Any | tuple[Any, str | None]:
         """
@@ -139,20 +141,35 @@ class ToolDefinition:
         """
 
         # Merge the library parameters with the LLM parameters
+        parameters = self._combine_parameters(llm_parameters, hardset_parameters)
+
+        result = self.function(**parameters)
+
+        if include_message:
+            message = self.format_message_for_call(llm_parameters, hardset_parameters)
+
+            return result, message
+        return result
+
+    def format_message_for_call(self, llm_parameters: dict[str, Any],
+                                hardset_parameters: dict[str, Any]) -> str | None:
+        """Formats the user message for the tool call."""
+
+        parameters = self._combine_parameters(llm_parameters, hardset_parameters)
+        message = self.user_message
+        if message and "{{" in message:
+            for key, value in parameters.items():
+                message = message.replace("{{" + key + "}}", str(value))
+        return message
+
+    def _combine_parameters(self, llm_parameters: dict[str, Any],
+                            library_parameters: dict[str, Any]) -> dict[str, Any]:
+        """Merge the library parameters with the LLM parameters"""
         parameters = deepcopy(llm_parameters)
         library_parameters = deepcopy(library_parameters)
         for injected_parameter in self.injected_parameters:
             parameters[injected_parameter] = library_parameters[injected_parameter]
-
-        result = self.function(**parameters)
-        if include_message:
-            message = self.user_message
-            if message and "{{" in message:
-                for key, value in parameters.items():
-                    message = message.replace("{{" + key + "}}", str(value))
-
-            return result, message
-        return result
+        return parameters
 
     def _get_type_for_parameter(
             self,

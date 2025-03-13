@@ -332,13 +332,13 @@ def test_calling_tool():
 
     res_no_message = tool.call_tool(
         llm_parameters=llm_params,
-        library_parameters=injected_params
+        hardset_parameters=injected_params
     )
     assert res_no_message is True
 
     res_w_message = tool.call_tool(
         llm_parameters=llm_params,
-        library_parameters=injected_params,
+        hardset_parameters=injected_params,
         include_message=True
     )
     assert ((True,
