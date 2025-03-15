@@ -2,7 +2,13 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
-## 0.1.5 - ??
+## 0.1.6 - March 15, 2025
+
+### Bux Fixes
+
+- Fixed a bug where non-copyable objects that are passed in to a tool call are handled.
+
+## 0.1.5 - March 14, 2025
 
 ### Added
 

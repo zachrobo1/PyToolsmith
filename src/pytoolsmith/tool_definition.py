@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import EnumType
 import inspect
@@ -165,8 +164,9 @@ class ToolDefinition:
     def _combine_parameters(self, llm_parameters: dict[str, Any],
                             library_parameters: dict[str, Any]) -> dict[str, Any]:
         """Merge the library parameters with the LLM parameters"""
-        parameters = deepcopy(llm_parameters)
-        library_parameters = deepcopy(library_parameters)
+        parameters = {}
+        for k, v in llm_parameters.items():
+            parameters[k] = v
         for injected_parameter in self.injected_parameters:
             parameters[injected_parameter] = library_parameters[injected_parameter]
         return parameters
