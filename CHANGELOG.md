@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.7 - March 17, 2025
+
+### Bux Fixes
+
+- Fixed a bug where overload calls didn't match the actual method call.
+
 ## 0.1.6 - March 15, 2025
 
 ### Bux Fixes
