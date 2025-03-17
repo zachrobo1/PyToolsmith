@@ -1,9 +1,8 @@
+import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import EnumType
-import inspect
 from types import GenericAlias, UnionType
-
 # noinspection PyUnresolvedReferences
 from typing import (
     Any,
@@ -118,13 +117,13 @@ class ToolDefinition:
 
     @overload
     def call_tool(self, llm_parameters: dict[str, Any],
-                  library_parameters: dict[str, Any],
+                  hardset_parameters: dict[str, Any],
                   include_message: Literal[False] = False) -> Any:
         ...
 
     @overload
     def call_tool(self, llm_parameters: dict[str, Any],
-                  library_parameters: dict[str, Any],
+                  hardset_parameters: dict[str, Any],
                   include_message: Literal[True] = True) -> tuple[Any, str | None]:
         ...
 
@@ -162,13 +161,13 @@ class ToolDefinition:
         return message
 
     def _combine_parameters(self, llm_parameters: dict[str, Any],
-                            library_parameters: dict[str, Any]) -> dict[str, Any]:
+                            hardset_parameters: dict[str, Any]) -> dict[str, Any]:
         """Merge the library parameters with the LLM parameters"""
         parameters = {}
         for k, v in llm_parameters.items():
             parameters[k] = v
         for injected_parameter in self.injected_parameters:
-            parameters[injected_parameter] = library_parameters[injected_parameter]
+            parameters[injected_parameter] = hardset_parameters[injected_parameter]
         return parameters
 
     def _get_type_for_parameter(
