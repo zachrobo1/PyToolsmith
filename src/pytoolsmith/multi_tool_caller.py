@@ -34,7 +34,6 @@ def batch_tool(tool_library: "ToolLibrary",
                 llm_parameters=llm_parameters,
                 hardset_parameters=hardset_parameters
             ))
-            results.append(f"#{i} ({tool_name}) Result: {result}")
         except Exception as e:
             result = str(e)
         results.append(f"#{i} ({tool_name}) Result: {result}")

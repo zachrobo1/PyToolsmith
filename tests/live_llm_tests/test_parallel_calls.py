@@ -1,3 +1,5 @@
+from typing import cast
+
 from anthropic import Anthropic
 from anthropic.types import (
     MessageParam,
@@ -25,7 +27,9 @@ def test_batch_tool_for_anthropic(
             MessageParam(
                 role="user",
                 content=[TextBlockParam(
-                    text="Get the first name for users with IDs 12424 and 594365",
+                    text="Get the first name for users with IDs "
+                         "123e4567-e89b-12d3-a456-426614174000 and "
+                         "123e4567-e89b-12d3-a456-426614174012",
                     type="text")],
             )
         ],
@@ -41,18 +45,25 @@ def test_batch_tool_for_anthropic(
     assert tool_block.name == "batch_tool"
     exp_input = {'invocations': [
         {'name': 'get_users_name_from_id',
-         'arguments': '{"user_id": "12424", "fields_to_include": ["first_name"]}'},
+         'arguments': '{"user_id": "123e4567-e89b-12d3-a456-426614174000", '
+                      '"fields_to_include": ["first_name"]}'},
         {'name': 'get_users_name_from_id',
-         'arguments': '{"user_id": "594365", "fields_to_include": ["first_name"]}'}]}
+         'arguments': '{"user_id": "123e4567-e89b-12d3-a456-426614174012", '
+                      '"fields_to_include": ["first_name"]}'}]}
 
     assert exp_input == tool_block.input
 
     tool = basic_tool_library.get_tool_from_name(tool_block.name)
     tool_result = tool.call_tool(
-        llm_parameters=tool_block.input,
+        llm_parameters=cast(dict, tool_block.input),
+        # TODO: make this more elegant
         hardset_parameters={
             "tool_library": basic_tool_library,
-            "hardset_parameters": {}}
+            "hardset_parameters": {}
+        }
     )
 
-    print(tool_result)
+    expected_tool_result = ("#0 (get_users_name_from_id) Result: Zach Cloud\n"
+                            "#1 (get_users_name_from_id) Result: Zach Cloud")
+
+    assert expected_tool_result == tool_result
