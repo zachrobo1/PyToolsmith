@@ -1,0 +1,58 @@
+from anthropic import Anthropic
+from anthropic.types import (
+    MessageParam,
+    TextBlockParam,
+    ThinkingConfigEnabledParam,
+    ToolUseBlock,
+)
+from pytest import mark
+
+from pytoolsmith import ToolLibrary
+
+_SYS_MESSAGE = ("You are a helpful assistant connected to a database. "
+                "You can look up multiple people at once.")
+
+
+@mark.llm_test
+def test_batch_tool_for_anthropic(
+        live_anthropic_client: Anthropic, basic_tool_library: ToolLibrary
+):
+    result = live_anthropic_client.messages.create(
+        system=_SYS_MESSAGE,
+        tools=basic_tool_library.to_anthropic(),
+        model="claude-3-7-sonnet-latest",
+        messages=[
+            MessageParam(
+                role="user",
+                content=[TextBlockParam(
+                    text="Get the first name for users with IDs 12424 and 594365",
+                    type="text")],
+            )
+        ],
+        max_tokens=1025,
+        temperature=1,
+        thinking=ThinkingConfigEnabledParam(type="enabled", budget_tokens=1024)
+    )
+    print(result)
+
+    tool_blocks = [bl for bl in result.content if isinstance(bl, ToolUseBlock)]
+    assert len(tool_blocks) == 1
+    tool_block = tool_blocks[0]
+    assert tool_block.name == "batch_tool"
+    exp_input = {'invocations': [
+        {'name': 'get_users_name_from_id',
+         'arguments': '{"user_id": "12424", "fields_to_include": ["first_name"]}'},
+        {'name': 'get_users_name_from_id',
+         'arguments': '{"user_id": "594365", "fields_to_include": ["first_name"]}'}]}
+
+    assert exp_input == tool_block.input
+
+    tool = basic_tool_library.get_tool_from_name(tool_block.name)
+    tool_result = tool.call_tool(
+        llm_parameters=tool_block.input,
+        hardset_parameters={
+            "tool_library": basic_tool_library,
+            "hardset_parameters": {}}
+    )
+
+    print(tool_result)

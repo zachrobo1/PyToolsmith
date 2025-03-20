@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.5 - March XX, 2025
+
+### Added
+
+- Added multi-tool caller option for Anthropic.
+
 ## 0.1.7 - March 17, 2025
 
 ### Bux Fixes

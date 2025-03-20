@@ -1,6 +1,7 @@
 from collections import defaultdict
 from dataclasses import asdict
 
+from .multi_tool_caller import batch_tool_definition, batch_tool_parameters
 from .tool_definition import ToolDefinition
 from .types.bedrock_types import (
     AwsBedrockConverseToolConfig,
@@ -10,10 +11,16 @@ from .types.bedrock_types import (
 
 class ToolLibrary:
 
-    def __init__(self):
+    def __init__(self, include_batch_tool: bool = False):
+        """
+        Args:
+            include_batch_tool: If true, will include the batch tool used to make
+                parallel tool calls with Claude 3.7.
+        """
         self._tools: dict[str, ToolDefinition] = {}
         self._tool_groups: dict[str, list[str]] = defaultdict(list)
         """Map of groups to the tool names inside of them."""
+        self._include_batch_tool = include_batch_tool
 
     def add_tool(self, tool: ToolDefinition):
         if tool.name in self._tools:
@@ -25,6 +32,9 @@ class ToolLibrary:
             self._tool_groups[tool.tool_group].append(tool.name)
 
     def get_tool_from_name(self, name: str) -> ToolDefinition:
+        if self._include_batch_tool and name == "batch_tool":
+            return batch_tool_definition
+
         if name not in self._tools:
             raise ValueError(f"Tool not found: {name}")
         return self._tools[name]
@@ -59,20 +69,28 @@ class ToolLibrary:
         ]
 
     def to_anthropic(self, *, use_cache_control: bool = False):
+        batch_tool_addition = [
+            asdict(
+                batch_tool_parameters.to_anthropic(use_cache_control=use_cache_control))
+        ] if self._include_batch_tool else []
         return [
             asdict(
                 t.build_json_schema().to_anthropic(use_cache_control=use_cache_control))
             for t in self._tools.values()
-        ]
+        ] + batch_tool_addition
 
     def to_bedrock(self) -> dict:
+        batch_tool_addition = [
+            AwsBedrockToolSpecListObject(toolSpec=batch_tool_parameters.to_bedrock(
+                as_dict=True))
+        ] if self._include_batch_tool else []
         bedrock_config = AwsBedrockConverseToolConfig(
             tools=[
-                AwsBedrockToolSpecListObject(
-                    toolSpec=t.build_json_schema().to_bedrock(as_dict=True)
-                )
-                for t in self._tools.values()
-            ]
+                      AwsBedrockToolSpecListObject(
+                          toolSpec=t.build_json_schema().to_bedrock(as_dict=True)
+                      )
+                      for t in self._tools.values()
+                  ] + batch_tool_addition
         )
         return asdict(bedrock_config)
 
