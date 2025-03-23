@@ -200,6 +200,8 @@ The following client-specific configuration options are available as options on 
 - [OpenAI Strict Mode](https://platform.openai.com/docs/guides/function-calling#strict-mode) with `strict_model=True`
 - [Anthropic Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) with
   `use_cache_control=True`
+- [Anthropic Parallel Tool Use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#parallel-tool-use)
+  with `include_batch_tool=True` (set on the library constructor)
 
 ## Future Plans
 
