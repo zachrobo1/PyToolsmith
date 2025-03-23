@@ -37,13 +37,15 @@ def test_cast_library_to_anthropic(filled_tool_library):
         {
             "cache_control": None,
             "description": "Desc for func 1",
-            "input_schema": {"properties": {"a": {"type": "string"}}, "type": "object"},
+            "input_schema": {"properties": {"a": {"type": "string"}}, "type": "object",
+                             "required": ["a"]},
             "name": "_func_to_test_1",
         },
         {
             "cache_control": None,
             "description": "Desc for func 2",
-            "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object"},
+            "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object",
+                             "required": ["b"]},
             "name": "_func_to_test_2",
         },
     ]
@@ -56,8 +58,11 @@ def test_get_tool_from_name(filled_tool_library):
         filled_tool_library.get_tool_from_name("_some_other_tool")
     assert excinfo.value.args[0] == "Tool not found: _some_other_tool"
 
-    assert filled_tool_library.get_tool_from_name("_func_to_test_1") == ToolDefinition(
+    exp_def = ToolDefinition(
         function=_func_to_test_1, tool_group="1s")
+    exp_def.set_tool_library(filled_tool_library)
+
+    assert filled_tool_library.get_tool_from_name("_func_to_test_1") == exp_def
 
 
 def test_get_all_tool_names(filled_tool_library):

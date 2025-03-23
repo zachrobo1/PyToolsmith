@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.8 - March 23, 2025
+
+### Added
+
+- Added batch tool for Anthropic.
+
 ## 0.1.7 - March 17, 2025
 
 ### Bux Fixes

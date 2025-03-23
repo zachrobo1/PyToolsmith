@@ -12,6 +12,7 @@ class AnthropicCacheControlParam:
 @dataclass
 class AnthropicInputSchema:
     type: Literal["object"]
+    required: list[str]
     properties: dict
     """The input properties"""
 

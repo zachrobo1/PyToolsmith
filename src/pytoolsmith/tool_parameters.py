@@ -58,7 +58,8 @@ class ToolParameters:
             if use_cache_control
             else None,
             input_schema=AnthropicInputSchema(
-                type="object", properties=self.input_properties
+                type="object", properties=self.input_properties,
+                required=self.required_parameters
             ),
         )
 

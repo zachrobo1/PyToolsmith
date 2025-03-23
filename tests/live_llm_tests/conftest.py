@@ -34,7 +34,7 @@ def basic_tool_library() -> ToolLibrary:
 
     user_lookup_tool = ToolDefinition(function=get_users_name_from_id)
 
-    library = ToolLibrary()
+    library = ToolLibrary(include_batch_tool=True)
     library.add_tool(user_lookup_tool)
 
     return library
