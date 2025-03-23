@@ -37,7 +37,6 @@ def test_batch_tool_for_anthropic(
         temperature=1,
         thinking=ThinkingConfigEnabledParam(type="enabled", budget_tokens=1024)
     )
-    print(result)
 
     tool_blocks = [bl for bl in result.content if isinstance(bl, ToolUseBlock)]
     assert len(tool_blocks) == 1
@@ -56,11 +55,7 @@ def test_batch_tool_for_anthropic(
     tool = basic_tool_library.get_tool_from_name(tool_block.name)
     tool_result = tool.call_tool(
         llm_parameters=cast(dict, tool_block.input),
-        # TODO: make this more elegant
-        hardset_parameters={
-            "tool_library": basic_tool_library,
-            "hardset_parameters": {}
-        }
+        hardset_parameters={}
     )
 
     expected_tool_result = ("#0 (get_users_name_from_id) Result: Zach Cloud\n"

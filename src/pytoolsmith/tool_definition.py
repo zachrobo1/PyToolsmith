@@ -6,6 +6,7 @@ from types import GenericAlias, UnionType
 
 # noinspection PyUnresolvedReferences
 from typing import (
+    TYPE_CHECKING,
     Any,
     Literal,
     NewType,
@@ -21,6 +22,9 @@ from typing_extensions import TypeVar
 from .pytoolsmith_config import get_format_map
 from .pytoolsmith_config.mappings import get_type_map
 from .tool_parameters import ToolParameters
+
+if TYPE_CHECKING:
+    from .tool_library import ToolLibrary
 
 R = TypeVar("R", dict, str, list[str])
 
@@ -58,6 +62,9 @@ class ToolDefinition:
     """
 
     _schema_cache: ToolParameters | None = field(default=None, init=False, repr=False)
+    """A cached version of the schema for the tool."""
+
+    _tool_library: "ToolLibrary | None" = field(default=None, init=False, repr=False)
 
     def __post_init__(self) -> None:
         """Validate the schema can be built after initialization."""
@@ -74,6 +81,9 @@ class ToolDefinition:
     @property
     def name(self) -> str:
         return self.function.__name__
+
+    def set_tool_library(self, tool_library: "ToolLibrary"):
+        self._tool_library = tool_library
 
     def build_json_schema(
             self,
@@ -138,6 +148,13 @@ class ToolDefinition:
         Calls the tool with the given parameters. 
         If `include_message` is True, will also return a user message.
         """
+        # So, for the batch tool, we need to change the hard-set 
+        # parameters to include the tool library.
+        if self.name == "batch_tool":
+            hardset_parameters = {
+                "tool_library": self._tool_library,
+                "hardset_parameters": hardset_parameters
+            }
 
         # Merge the library parameters with the LLM parameters
         parameters = self._combine_parameters(llm_parameters, hardset_parameters)

@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import asdict
 
-from .multi_tool_caller import batch_tool_definition, batch_tool_parameters
+from .batch_tool import batch_tool_definition, batch_tool_parameters
 from .tool_definition import ToolDefinition
 from .types.bedrock_types import (
     AwsBedrockConverseToolConfig,
@@ -26,6 +26,8 @@ class ToolLibrary:
         if tool.name in self._tools:
             raise ValueError(f"Duplicate tool name: {tool.name}")
 
+        tool.set_tool_library(self)
+
         self._tools[tool.name] = tool
 
         if tool.tool_group:
@@ -33,6 +35,7 @@ class ToolLibrary:
 
     def get_tool_from_name(self, name: str) -> ToolDefinition:
         if self._include_batch_tool and name == "batch_tool":
+            batch_tool_definition.set_tool_library(self)
             return batch_tool_definition
 
         if name not in self._tools:

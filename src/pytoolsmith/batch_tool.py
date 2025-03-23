@@ -1,3 +1,9 @@
+"""
+This tool helps Anthropic LLMs perform batch calls. See
+https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/parallel_tools_claude_3_7_sonnet.ipynb
+for more information.
+"""
+
 import json
 from typing import TYPE_CHECKING, Any
 
@@ -29,14 +35,20 @@ def batch_tool(tool_library: "ToolLibrary",
 
         tool = tool_library.get_tool_from_name(tool_name)
 
+        did_error = False
         try:
-            result = str(tool.call_tool(
+
+            result = tool.call_tool(
                 llm_parameters=llm_parameters,
                 hardset_parameters=hardset_parameters
-            ))
+            )
         except Exception as e:
+            did_error = True
             result = str(e)
-        results.append(f"#{i} ({tool_name}) Result: {result}")
+
+        results.append(
+            f"#{i} ({tool_name}) Result"
+            f"{' (note: errored)' if did_error else ''}: {result}")
 
     return '\n'.join(results)
 
