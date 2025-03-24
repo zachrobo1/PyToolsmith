@@ -4,9 +4,9 @@ https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/parallel_too
 for more information.
 """
 
-import json
 from typing import TYPE_CHECKING, Any
 
+from .pytoolsmith_config.serialization import serialize_batch_tool_args
 from .tool_definition import ToolDefinition
 from .tool_parameters import ToolParameters
 
@@ -31,7 +31,7 @@ def batch_tool(tool_library: "ToolLibrary",
     results = []
     for i, invocation in enumerate(invocations):
         tool_name = invocation.get("name")
-        llm_parameters = json.loads(invocation.get("arguments", "{}"))
+        llm_parameters = serialize_batch_tool_args(invocation.get("arguments", "{}"))
 
         tool = tool_library.get_tool_from_name(tool_name)
 

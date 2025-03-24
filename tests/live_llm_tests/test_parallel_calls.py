@@ -53,6 +53,10 @@ def test_batch_tool_for_anthropic(
     assert exp_input == tool_block.input
 
     tool = basic_tool_library.get_tool_from_name(tool_block.name)
+
+    tool_msg = tool.format_message_for_call(exp_input, {})
+    assert tool_msg == "Looking up user(s)...\nLooking up user(s)..."
+
     tool_result = tool.call_tool(
         llm_parameters=cast(dict, tool_block.input),
         hardset_parameters={}
