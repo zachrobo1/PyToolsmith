@@ -1,9 +1,9 @@
+import inspect
+import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import EnumType
-import inspect
 from types import GenericAlias, UnionType
-
 # noinspection PyUnresolvedReferences
 from typing import (
     TYPE_CHECKING,
@@ -170,6 +170,19 @@ class ToolDefinition:
     def format_message_for_call(self, llm_parameters: dict[str, Any],
                                 hardset_parameters: dict[str, Any]) -> str | None:
         """Formats the user message for the tool call."""
+        if self.name == "batch_tool":
+            # Handle the batch tool differently:
+            msgs = []
+            for invocation in llm_parameters["invocations"]:
+                tool = self._tool_library.get_tool_from_name(invocation["name"])
+                msg = tool.format_message_for_call(
+                    llm_parameters=json.loads(invocation["arguments"]),
+                    hardset_parameters=hardset_parameters
+                )
+                if msg:
+                    msgs.append(msg)
+
+            return "\n".join(msgs) if msgs else None
 
         parameters = self._combine_parameters(llm_parameters, hardset_parameters)
         message = self.user_message

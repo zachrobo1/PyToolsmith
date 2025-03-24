@@ -1,12 +1,12 @@
 import os
-from typing import Literal
 import uuid
+from typing import Literal
 
-from anthropic import Anthropic
 import boto3
+import pytest
+from anthropic import Anthropic
 from dotenv import load_dotenv
 from openai import OpenAI
-import pytest
 
 from pytoolsmith import ToolDefinition, ToolLibrary
 
@@ -29,10 +29,9 @@ def basic_tool_library() -> ToolLibrary:
         Returns: The user's information that was specified.
 
         """
-        print(user_id, fields_to_include)
         return "Zach Cloud"
 
-    user_lookup_tool = ToolDefinition(function=get_users_name_from_id)
+    user_lookup_tool = ToolDefinition(function=get_users_name_from_id, user_message="Looking up user(s)...")
 
     library = ToolLibrary(include_batch_tool=True)
     library.add_tool(user_lookup_tool)
