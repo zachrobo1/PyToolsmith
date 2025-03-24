@@ -1,5 +1,4 @@
 import inspect
-import json
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import EnumType
@@ -21,6 +20,7 @@ from typing_extensions import TypeVar
 
 from .pytoolsmith_config import get_format_map
 from .pytoolsmith_config.mappings import get_type_map
+from .pytoolsmith_config.serialization import serialize_batch_tool_args
 from .tool_parameters import ToolParameters
 
 if TYPE_CHECKING:
@@ -176,7 +176,7 @@ class ToolDefinition:
             for invocation in llm_parameters["invocations"]:
                 tool = self._tool_library.get_tool_from_name(invocation["name"])
                 msg = tool.format_message_for_call(
-                    llm_parameters=json.loads(invocation["arguments"]),
+                    llm_parameters=serialize_batch_tool_args(invocation["arguments"]),
                     hardset_parameters=hardset_parameters
                 )
                 if msg:

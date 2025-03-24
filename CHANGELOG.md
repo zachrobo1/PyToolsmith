@@ -2,6 +2,13 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.9 - March 24, 2025
+
+### Added
+
+- Added support for creating the user message for a tool call with the batch tool.
+- Support for setting a custom serialization function to be used with the batch tool added.
+
 ## 0.1.8 - March 23, 2025
 
 ### Added
