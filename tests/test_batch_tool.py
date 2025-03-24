@@ -36,7 +36,8 @@ def test_batch_tool():
          "arguments": "{}"}
     ]}
 
-    result, call_message_1 = tool_to_call.call_tool(llm_params, {}, include_message=True)
+    result, call_message_1 = tool_to_call.call_tool(
+        llm_params, {}, include_message=True)
     assert result == ("#0 (square) Result: 4\n#1 (square) Result: 9\n"
                       "#2 (errors) Result (note: errored): This is an error")
 

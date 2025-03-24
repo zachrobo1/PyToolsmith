@@ -1,5 +1,5 @@
+from collections.abc import Callable
 import json
-from typing import Callable
 
 _BATCH_TOOL_SERIALIZER = json.loads
 

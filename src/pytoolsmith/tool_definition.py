@@ -1,8 +1,9 @@
-import inspect
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import EnumType
+import inspect
 from types import GenericAlias, UnionType
+
 # noinspection PyUnresolvedReferences
 from typing import (
     TYPE_CHECKING,
