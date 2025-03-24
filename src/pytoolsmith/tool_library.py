@@ -102,7 +102,8 @@ class ToolLibrary:
         """
         Returns a subset of tools as a new tool library.
         Uses a `or` condition to filter the tools- i.e. any tool that either has a name
-        in the list or is in a specified group..\
+        in the list or is in a specified group.
+        Will shadow the original library in terms of having the batch tool.
         """
         names = names or []
 
@@ -117,7 +118,7 @@ class ToolLibrary:
                 f"library."
             )
 
-        subset = ToolLibrary()
+        subset = ToolLibrary(include_batch_tool=self._include_batch_tool)
         for name in all_accepted_tool_names:
             subset.add_tool(self.get_tool_from_name(name))
         return subset

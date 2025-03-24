@@ -191,17 +191,25 @@ a `tool_group` parameter on your ToolDefinitions.
 
 To use, call the `subset()` method on a ToolLibrary instance to get a smaller library generated.
 
+**Batch Tool**
+<br>
+When using Claude 3.7, Anthropic suggests adding
+a [Batch Tool](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#parallel-tool-use) to be able to
+call multiple tools at once. To use within PyToolsmith, set `include_batch_tool=True` when creating your tool library.
+You can also set a custom serialization function to load the LLM's arguments into function called from the batch tool
+with
+`pytoolsmith_config.set_batch_tool_serializer(custom_serializer)`.
+
 **Vendor-Specific Options**
 <br>
-If needed, additional OpenAPI spec can be passed into a `ToolDefinition` constructor with the
+If needed, additional OpenAPI spec can be passed into a `ToolDefinition` constructor with the `additional_parameters`
+parameter.
 
-The following client-specific configuration options are available as options on the `to_<provider>` methods:
+The following client-specific configuration options are also available as options on the `to_<provider>` methods:
 
 - [OpenAI Strict Mode](https://platform.openai.com/docs/guides/function-calling#strict-mode) with `strict_model=True`
 - [Anthropic Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) with
   `use_cache_control=True`
-- [Anthropic Parallel Tool Use](https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#parallel-tool-use)
-  with `include_batch_tool=True` (set on the library constructor)
 
 ## Future Plans
 
