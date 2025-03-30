@@ -97,12 +97,32 @@ def test_subset_library(filled_tool_library):
         filled_tool_library.get_all_tool_names())
 
 
+def test_exclude_library(filled_tool_library):
+    subset_library = filled_tool_library.exclude(["_func_to_test_1"])
+    assert subset_library.get_all_tool_names() == ["_func_to_test_2"]
+
+    subset_library = filled_tool_library.exclude(["_func_to_test_1", "_func_to_test_2"])
+    assert subset_library.get_all_tool_names() == []
+
+
 def test_subset_library_from_groups(filled_tool_library):
     with pytest.raises(ValueError):
         filled_tool_library.subset(groups=["other_group"])
+
+    filled_tool_library.exclude(["other_func"])
 
     subset_library = filled_tool_library.subset(groups=["1s"])
     assert subset_library.get_all_tool_names() == ["_func_to_test_1"]
     subset_library = filled_tool_library.subset(groups=["1s", "2s"])
     assert set(subset_library.get_all_tool_names()) == set(
         filled_tool_library.get_all_tool_names())
+
+
+def test_exclude_library_from_groups(filled_tool_library):
+    with pytest.raises(ValueError):
+        filled_tool_library.exclude(groups=["other_group"])
+
+    subset_library = filled_tool_library.exclude(groups=["1s"])
+    assert subset_library.get_all_tool_names() == ["_func_to_test_2"]
+    subset_library = filled_tool_library.exclude(groups=["1s", "2s"])
+    assert subset_library.get_all_tool_names() == []
