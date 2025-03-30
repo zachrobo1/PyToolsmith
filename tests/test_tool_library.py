@@ -31,7 +31,8 @@ def test_to_x_works(filled_tool_library, method):
 
 
 def test_cast_library_to_anthropic(filled_tool_library):
-    anthropic_result = filled_tool_library.to_anthropic()
+    """With cache control, should only set the cache control for the last tool."""
+    anthropic_result = filled_tool_library.to_anthropic(use_cache_control=True)
 
     exp_result = [
         {
@@ -42,7 +43,7 @@ def test_cast_library_to_anthropic(filled_tool_library):
             "name": "_func_to_test_1",
         },
         {
-            "cache_control": None,
+            "cache_control": {"type": "ephemeral"},
             "description": "Desc for func 2",
             "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object",
                              "required": ["b"]},

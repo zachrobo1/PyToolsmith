@@ -76,11 +76,18 @@ class ToolLibrary:
             asdict(
                 batch_tool_parameters.to_anthropic(use_cache_control=use_cache_control))
         ] if self._include_batch_tool else []
-        return [
-            asdict(
-                t.build_json_schema().to_anthropic(use_cache_control=use_cache_control))
-            for t in self._tools.values()
-        ] + batch_tool_addition
+
+        tools_params = batch_tool_addition + [
+            t.build_json_schema() for t in self._tools.values()
+        ]
+
+        ret_dict = []
+        last_i = len(tools_params) - 1
+        for i, p in enumerate(tools_params):
+            ret_dict.append(asdict(
+                p.to_anthropic(use_cache_control=use_cache_control and i == last_i)))
+
+        return ret_dict
 
     def to_bedrock(self) -> dict:
         batch_tool_addition = [
