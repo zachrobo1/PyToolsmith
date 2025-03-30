@@ -21,7 +21,7 @@ def test_batch_tool_for_anthropic(
 ):
     result = live_anthropic_client.messages.create(
         system=_SYS_MESSAGE,
-        tools=basic_tool_library.to_anthropic(),
+        tools=basic_tool_library.to_anthropic(use_cache_control=True),
         model="claude-3-7-sonnet-latest",
         messages=[
             MessageParam(

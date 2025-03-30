@@ -16,12 +16,13 @@ PHRASES = ["user", "id", "name", "email", "phone"]
 
 
 @mark.llm_test
+@mark.parametrize("cache_control", [False, True])
 def test_tool_library_for_anthropic(
-        live_anthropic_client: Anthropic, basic_tool_library: ToolLibrary
+        live_anthropic_client: Anthropic, basic_tool_library: ToolLibrary, cache_control
 ):
     result = live_anthropic_client.messages.create(
         system=_SYS_MESSAGE,
-        tools=basic_tool_library.to_anthropic(),
+        tools=basic_tool_library.to_anthropic(use_cache_control=cache_control),
         model="claude-3-7-sonnet-latest",
         messages=[
             MessageParam(

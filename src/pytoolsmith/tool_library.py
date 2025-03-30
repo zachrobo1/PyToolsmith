@@ -72,14 +72,13 @@ class ToolLibrary:
         ]
 
     def to_anthropic(self, *, use_cache_control: bool = False):
-        batch_tool_addition = [
-            asdict(
-                batch_tool_parameters.to_anthropic(use_cache_control=use_cache_control))
+        tools_params = [
+            batch_tool_parameters
         ] if self._include_batch_tool else []
 
-        tools_params = batch_tool_addition + [
+        tools_params.extend([
             t.build_json_schema() for t in self._tools.values()
-        ]
+        ])
 
         ret_dict = []
         last_i = len(tools_params) - 1
