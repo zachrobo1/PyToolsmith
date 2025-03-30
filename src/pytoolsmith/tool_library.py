@@ -128,3 +128,29 @@ class ToolLibrary:
         for name in all_accepted_tool_names:
             subset.add_tool(self.get_tool_from_name(name))
         return subset
+
+    def exclude(self, names: list[str] | None = None,
+                groups: list[str] | None = None) -> "ToolLibrary":
+        """
+        Returns a subset of tools as a new tool library by excluding the specified 
+        tools / groups. Uses a `or` condition to filter the tools- i.e. any tool that 
+        either has a name in the list or is in a specified group is removed.
+        Will shadow the original library in terms of having the batch tool.
+        """
+
+        # Start with the full set of tool names, then remove there
+        all_accepted_tool_names = set(self.get_all_tool_names())
+
+        names_to_remove = set(names or [])
+
+        for group in groups or []:
+            names_to_remove.update(self.get_tool_names_in_group(group))
+
+        for name in names_to_remove:
+            if name in all_accepted_tool_names:
+                all_accepted_tool_names.remove(name)
+
+        subset = ToolLibrary(include_batch_tool=self._include_batch_tool)
+        for name in all_accepted_tool_names:
+            subset.add_tool(self.get_tool_from_name(name))
+        return subset
