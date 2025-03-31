@@ -2,6 +2,16 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.10 - March 30, 2025
+
+### Added
+
+- Added support for excluding tools (opposite of `subset`)
+
+### Bux Fixes
+
+- Fixed a bug where the `use_cache_control` was getting set for every tool, rather than just the last call.
+
 ## 0.1.9 - March 24, 2025
 
 ### Added

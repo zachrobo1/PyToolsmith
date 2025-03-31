@@ -189,7 +189,8 @@ Sometimes you may not want to pass all of your tools to the LLM.
 Subsetting allows you to select a smaller set of tools to pass in- either individually or by tagging them with
 a `tool_group` parameter on your ToolDefinitions.
 
-To use, call the `subset()` method on a ToolLibrary instance to get a smaller library generated.
+To use, call the `subset()` method on a ToolLibrary instance to get a smaller library generated. Additionally, you can
+use `exclude()` to get the opposite effect.
 
 **Batch Tool**
 <br>
