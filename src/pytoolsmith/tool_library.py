@@ -7,6 +7,11 @@ from .types.bedrock_types import (
     AwsBedrockConverseToolConfig,
     AwsBedrockToolSpecListObject,
 )
+from .types.gemini_types import (
+    GeminiFunctionDeclaration,
+    GeminiTool,
+)
+from .utils import remove_keys
 
 
 class ToolLibrary:
@@ -102,6 +107,42 @@ class ToolLibrary:
                   ] + batch_tool_addition
         )
         return asdict(bedrock_config)
+
+    def to_gemini(self) -> list:
+        """
+        Generates a list of tool descriptions for Gemini.
+        Args:
+            include_google_search_tool: If true, will include the Google Search tool.
+
+        Returns:
+
+        """
+
+        tool_list = []
+
+        for tool in self._tools.values():
+            tool_def = tool.build_json_schema()
+
+            tool_list.append(
+                asdict(GeminiTool(
+                    function_declarations=[GeminiFunctionDeclaration(
+                        name=tool.name,
+                        description=tool_def.description,
+                        parameters={
+                            "properties": remove_keys(
+                                tool_def.input_properties,
+                                keys_to_remove=["default", "format"]
+                            ),
+                            "required": tool_def.required_parameters,
+                            "type": "object"
+                        },
+                        response=None
+                    )],
+                )
+                )
+            )
+
+        return tool_list
 
     def subset(self, names: list[str] | None = None,
                groups: list[str] | None = None) -> "ToolLibrary":

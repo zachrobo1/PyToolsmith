@@ -29,6 +29,7 @@ definitions and automatically generate the JSON schema to pass to the LLM.
 - Anthropic
 - AWS Bedrock
 - OpenAI
+- Google Gemini (limited)
 
 ### Included Type Support
 

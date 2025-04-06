@@ -1,5 +1,6 @@
 from anthropic import Anthropic
 from anthropic.types import MessageParam, TextBlockParam
+from google.genai.types import GenerateContentConfig
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionSystemMessageParam,
@@ -70,3 +71,15 @@ def test_tool_library_for_bedrock(live_bedrock_client, basic_tool_library: ToolL
     )["output"]["message"]
     for phrase in PHRASES:
         assert phrase in result["content"][0]["text"].lower()
+
+
+@mark.llm_test
+def test_tool_library_for_gemini(live_gemini_client, basic_tool_library: ToolLibrary):
+    result = live_gemini_client.models.generate_content(
+        model="gemini-2.5-pro-exp-03-25", contents="Do you have access to tools?",
+        config=GenerateContentConfig(
+            tools=basic_tool_library.to_gemini()
+        )
+    )
+    for phrase in PHRASES:
+        assert phrase in result.text.lower()
