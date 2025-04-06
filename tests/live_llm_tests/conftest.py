@@ -5,6 +5,7 @@ import uuid
 from anthropic import Anthropic
 import boto3
 from dotenv import load_dotenv
+from google import genai as google_genai
 from openai import OpenAI
 import pytest
 
@@ -64,3 +65,8 @@ def live_bedrock_client():
         aws_secret_access_key=os.environ.get("AWS_SECRET_KEY"),
         region_name=os.environ.get("AWS_REGION", "us-east-1"),
     )
+
+
+@pytest.fixture
+def live_gemini_client():
+    return google_genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))

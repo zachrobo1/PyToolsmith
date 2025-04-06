@@ -1,6 +1,6 @@
 [project]
 name = "pytoolsmith"
-version = "0.1.10"
+version = "0.1.11"
 description = "A lightweight Python library that simplifies the process of exposing functions as tools for Large Language Models"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,6 +28,7 @@ dev = [
     "openai==1.60.0",
     "python-dotenv==1.0.1",
     "boto3==1.37.8",
+    "google-genai==1.9.0",
 ]
 
 [project.urls]

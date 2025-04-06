@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.11 - April 6, 2025
+
+### Added
+
+- Added support for passing tools to the Google Gemini SDK.
+
 ## 0.1.10 - March 30, 2025
 
 ### Added

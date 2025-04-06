@@ -3,13 +3,14 @@ from typing import Any
 
 def remove_keys(obj: Any, keys_to_remove: list[str]) -> Any:
     """
-    Recursively remove 'format' keys from dictionaries.
+    Recursively remove keys from dictionaries.
 
     Args:
         obj: The object to process, typically a dict or a list containing dicts
+        keys_to_remove: A list of keys to remove from the object recursively.
 
     Returns:
-        The object with all 'format' keys removed at any nesting level
+        The object with all keys removed at any nesting level
     """
     if isinstance(obj, dict):
         new_dict = {k: remove_keys(v, keys_to_remove) for k, v in obj.items()
