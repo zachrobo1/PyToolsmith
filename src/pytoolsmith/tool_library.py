@@ -123,9 +123,6 @@ class ToolLibrary:
         for tool in self._tools.values():
             tool_def = tool.build_json_schema()
 
-            print(tool.name)
-            print(tool_def.input_properties)
-            print(tool_def.required_parameters)
             tool_list.append(
                 asdict(GeminiTool(
                     function_declarations=[GeminiFunctionDeclaration(
