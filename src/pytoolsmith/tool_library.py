@@ -88,13 +88,14 @@ class ToolLibrary:
 
         ret_dict = []
         last_i = len(tools_params) - 1
+        # Cache control should only be set on the last tool.
         for i, p in enumerate(tools_params):
             ret_dict.append(asdict(
                 p.to_anthropic(use_cache_control=use_cache_control and i == last_i)))
 
         return ret_dict
 
-    def to_bedrock(self, include_cache_point: bool = False) -> dict:
+    def to_bedrock(self, use_cache_control: bool = False) -> dict:
         batch_tool_addition = [
             AwsBedrockToolSpecListObject(toolSpec=batch_tool_parameters.to_bedrock(
                 as_dict=True))
@@ -107,7 +108,7 @@ class ToolLibrary:
                       for t in self._tools.values()
                   ] + batch_tool_addition
         )
-        if include_cache_point:
+        if use_cache_control:
             bedrock_config.tools.append(AwsBedrockCachePointObject())
         return asdict(bedrock_config)
 
