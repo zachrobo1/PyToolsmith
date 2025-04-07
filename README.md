@@ -211,7 +211,7 @@ The following client-specific configuration options are also available as option
 
 - [OpenAI Strict Mode](https://platform.openai.com/docs/guides/function-calling#strict-mode) with `strict_model=True`
 - [Anthropic Prompt Caching](https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching) with
-  `use_cache_control=True`
+  `use_cache_control=True` on the `to_anthropic()` and `to_bedrock()` methods
 
 ## Future Plans
 
