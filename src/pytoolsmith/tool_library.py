@@ -4,6 +4,7 @@ from dataclasses import asdict
 from .batch_tool import batch_tool_definition, batch_tool_parameters
 from .tool_definition import ToolDefinition
 from .types.bedrock_types import (
+    AwsBedrockCachePointObject,
     AwsBedrockConverseToolConfig,
     AwsBedrockToolSpecListObject,
 )
@@ -93,7 +94,7 @@ class ToolLibrary:
 
         return ret_dict
 
-    def to_bedrock(self) -> dict:
+    def to_bedrock(self, include_cache_point: bool = False) -> dict:
         batch_tool_addition = [
             AwsBedrockToolSpecListObject(toolSpec=batch_tool_parameters.to_bedrock(
                 as_dict=True))
@@ -106,6 +107,8 @@ class ToolLibrary:
                       for t in self._tools.values()
                   ] + batch_tool_addition
         )
+        if include_cache_point:
+            bedrock_config.tools.append(AwsBedrockCachePointObject())
         return asdict(bedrock_config)
 
     def to_gemini(self) -> list:

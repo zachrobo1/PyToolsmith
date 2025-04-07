@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Literal
 
 
@@ -42,7 +42,19 @@ class AwsBedrockToolSpecListObject:
 
 
 @dataclass
+class AwsBedrockCachePointDefault:
+    type: Literal["default"] = "default"
+
+
+@dataclass
+class AwsBedrockCachePointObject:
+    cachePoint: AwsBedrockCachePointDefault = field(
+        default_factory=AwsBedrockCachePointDefault
+    )
+
+
+@dataclass
 class AwsBedrockConverseToolConfig:
     """What gets passed into Bedrock to configure the tools available to the LLM"""
 
-    tools: list[AwsBedrockToolSpecListObject]
+    tools: list[AwsBedrockToolSpecListObject | AwsBedrockCachePointObject]

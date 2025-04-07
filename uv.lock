@@ -45,30 +45,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.37.8"
+version = "1.37.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/82/17bd72d02a5ba60b9e9d7ffedc22cf2cf25dba1bfac70ddca981feada53e/boto3-1.37.8.tar.gz", hash = "sha256:9448f4a079189e19c3253cfdc5b8ef6dc51a3b82431e8347a51f4c1b2d9dab42", size = 111341 }
+sdist = { url = "https://files.pythonhosted.org/packages/b7/f5/dd50ed0a20019fa38c22797718c80d38e8b75b5e97c971a908c638e819aa/boto3-1.37.28.tar.gz", hash = "sha256:09ee85ba70a88286bba0d1bf5f0460a4b3bde52d162216accfe637b8bfac351b", size = 111385 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8d/a4/14cddcf35ff68d17a5da0ea2fe63d768efebb6e3cf85a4333874bf084c2b/boto3-1.37.8-py3-none-any.whl", hash = "sha256:b9f506e08c9f54687d6c073ef1c550a24a62cc2d1e0bc7cda9f13112a38818bf", size = 139542 },
+    { url = "https://files.pythonhosted.org/packages/5d/76/2723dede8c69d04e37f0897e9c05b597b6906df3d4c80186e39a0bc1b914/boto3-1.37.28-py3-none-any.whl", hash = "sha256:e584d9d33808633e73af3d962e22cf2cea91a38bc5a17577bb25618f8ded504f", size = 139562 },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.37.8"
+version = "1.37.28"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/dc/a7/6bce8960c08ec289495aa7ee7e3cf44c5aba97aac2f0e972ce91c476b175/botocore-1.37.8.tar.gz", hash = "sha256:b5825e08dd3e25642aa22a0d7d92bf81fef1ef857117e4155f923bbccf5aba63", size = 13631765 }
+sdist = { url = "https://files.pythonhosted.org/packages/92/90/557082a8379ece106b37eb00766efc7a32cbfcdaa0d1d78f38f99eefd218/botocore-1.37.28.tar.gz", hash = "sha256:69ea327f70f0607d174c4c2b1dcc87327b9c48e413c9d322179172b614b28e03", size = 13799915 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1d/dc/d901f40a8cc2c3bbc813decac7c69834b5e8223485a078a5e7795a28eadd/botocore-1.37.8-py3-none-any.whl", hash = "sha256:a6c94f33de12f4b10b10684019e554c980469b8394c6d82448a738cbd8452cef", size = 13400821 },
+    { url = "https://files.pythonhosted.org/packages/ea/c3/29ffcb4c90492bcfcff1b7e5ddb5529846acc0e627569432db9842c47675/botocore-1.37.28-py3-none-any.whl", hash = "sha256:c26b645d7b125bf42ffc1671b862b47500ee658e3a1c95d2438cb689fc85df15", size = 13467675 },
 ]
 
 [[package]]
@@ -517,7 +517,7 @@ wheels = [
 
 [[package]]
 name = "pytoolsmith"
-version = "0.1.10"
+version = "0.1.11"
 source = { editable = "." }
 
 [package.dev-dependencies]
@@ -540,7 +540,7 @@ dev = [
 [package.metadata.requires-dev]
 dev = [
     { name = "anthropic", specifier = "==0.47.1" },
-    { name = "boto3", specifier = "==1.37.8" },
+    { name = "boto3", specifier = "==1.37.28" },
     { name = "bson", specifier = "==0.5.10" },
     { name = "coverage", extras = ["toml"], specifier = "==7.3.2" },
     { name = "google-genai", specifier = "==1.9.0" },

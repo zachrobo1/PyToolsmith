@@ -56,11 +56,13 @@ def test_tool_library_for_openai(
 
 
 @mark.llm_test
-def test_tool_library_for_bedrock(live_bedrock_client, basic_tool_library: ToolLibrary):
+@mark.parametrize("cache_point", [True, False])
+def test_tool_library_for_bedrock(live_bedrock_client, basic_tool_library: ToolLibrary,
+                                  cache_point):
     result = live_bedrock_client.converse(
         system=[{"text": _SYS_MESSAGE}],
-        toolConfig=basic_tool_library.to_bedrock(),
-        modelId="us.anthropic.claude-3-5-sonnet-20241022-v2:0",
+        toolConfig=basic_tool_library.to_bedrock(include_cache_point=cache_point),
+        modelId="us.anthropic.claude-3-7-sonnet-20250219-v1:0",
         messages=[
             MessageParam(
                 role="user",
