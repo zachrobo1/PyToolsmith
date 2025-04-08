@@ -6,6 +6,7 @@ for more information.
 
 from typing import TYPE_CHECKING, Any
 
+from .pytoolsmith_config.batch_runner import get_batch_runner
 from .pytoolsmith_config.serialization import serialize_batch_tool_args
 from .tool_definition import ToolDefinition
 from .tool_parameters import ToolParameters
@@ -28,29 +29,43 @@ def batch_tool(tool_library: "ToolLibrary",
     Returns:
         String containing all the results, separated by newlines
     """
-    results = []
+    batch_runner = get_batch_runner()
+
+    # To allow a user to set their own (potentially async/parallel) batch runner, 
+    # we will create functions that will be passed in to the batch runner.
+    funcs_to_call = []
+
     for i, invocation in enumerate(invocations):
-        tool_name = invocation.get("name")
-        llm_parameters = serialize_batch_tool_args(invocation.get("arguments", "{}"))
+        # Create a factory function that returns the actual function with proper closure
+        def invocation_func_factory(idx, inv):
+            def func():
+                tool_name = inv.get("name")
+                llm_parameters = serialize_batch_tool_args(
+                    inv.get("arguments", "{}"))
 
-        tool = tool_library.get_tool_from_name(tool_name)
+                tool = tool_library.get_tool_from_name(tool_name)
 
-        did_error = False
-        try:
+                did_error = False
+                try:
+                    result = tool.call_tool(
+                        llm_parameters=llm_parameters,
+                        hardset_parameters=hardset_parameters
+                    )
+                except Exception as e:
+                    did_error = True
+                    result = str(e)
 
-            result = tool.call_tool(
-                llm_parameters=llm_parameters,
-                hardset_parameters=hardset_parameters
-            )
-        except Exception as e:
-            did_error = True
-            result = str(e)
+                return (
+                    f"#{idx} ({tool_name}) Result"
+                    f"{' (note: errored)' if did_error else ''}: {result}"
+                )
 
-        results.append(
-            f"#{i} ({tool_name}) Result"
-            f"{' (note: errored)' if did_error else ''}: {result}")
+            return func
 
-    return '\n'.join(results)
+        # Create a new function with the current values of i and invocation
+        funcs_to_call.append(invocation_func_factory(i, invocation))
+
+    return '\n'.join(batch_runner(funcs_to_call))
 
 
 batch_tool_definition = ToolDefinition(function=batch_tool,
