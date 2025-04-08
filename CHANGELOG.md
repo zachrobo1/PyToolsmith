@@ -2,11 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
-## 0.1.12 - April X, 2025
+## 0.1.12 - April 7, 2025
 
 ### Added
 
 - Support for adding a cache point to the tool list for the `to_bedrock()` method added.
+- Added support for creating a custom batch runner (for when you want to run the batch tools calls in parallel).
 
 ## 0.1.11 - April 6, 2025
 

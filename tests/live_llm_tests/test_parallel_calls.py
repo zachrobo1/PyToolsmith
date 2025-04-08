@@ -1,4 +1,6 @@
-from typing import cast
+from collections.abc import Callable
+import concurrent.futures
+from typing import Any, cast
 
 from anthropic import Anthropic
 from anthropic.types import (
@@ -9,16 +11,83 @@ from anthropic.types import (
 )
 from pytest import mark
 
-from pytoolsmith import ToolLibrary
+from pytoolsmith import ToolLibrary, pytoolsmith_config
 
 _SYS_MESSAGE = ("You are a helpful assistant connected to a database. "
                 "You can look up multiple people at once.")
 
 
+def parallel_batch_runner(callables: list[Callable[[], Any]]) -> list[Any]:
+    """
+    Execute a list of callables in parallel using ThreadPoolExecutor.
+
+    Args:
+        callables: A list of callable functions with no arguments
+
+    Returns:
+        A list of results from the callables in the same order
+    """
+    print("Using parallel runner!")
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        # Submit all callables to the executor
+        future_to_index = {executor.submit(callable_func): i
+                           for i, callable_func in enumerate(callables)}
+
+        # Create a results list with the correct size
+        results: list[Any | None] = [None] * len(callables)
+
+        # As each future completes, store its result in the correct position
+        for future in concurrent.futures.as_completed(future_to_index):
+            index = future_to_index[future]
+            try:
+                results[index] = future.result()
+            except Exception as exc:
+                # If an exception occurs, store the exception as the result
+                results[index] = exc
+
+    return results
+
+
+def test_parallel_batch_runner():
+    """Test that the parallel batch runner executes functions sequentially, 
+    just to make sure the other test work."""
+    results = []
+
+    def func1():
+        results.append(1)
+        return "one"
+
+    def func2():
+        results.append(2)
+        return "two"
+
+    def func3():
+        results.append(3)
+        return "three"
+
+    callables = [func1, func2, func3]
+
+    # Use the default batch runner
+    output = parallel_batch_runner(callables)
+
+    # Check that functions were executed in order
+    assert results == [1, 2, 3]
+    # Check that return values were collected correctly
+    assert output == ["one", "two", "three"]
+
+
+@mark.parametrize("use_batch_runner", [False, True])
 @mark.llm_test
 def test_batch_tool_for_anthropic(
-        live_anthropic_client: Anthropic, basic_tool_library: ToolLibrary
+        live_anthropic_client: Anthropic,
+        basic_tool_library: ToolLibrary,
+        use_batch_runner: bool
 ):
+    if use_batch_runner:
+        pytoolsmith_config.set_batch_runner(parallel_batch_runner)
+    else:
+        pytoolsmith_config.unset_batch_runner()
+
     result = live_anthropic_client.messages.create(
         system=_SYS_MESSAGE,
         tools=basic_tool_library.to_anthropic(use_cache_control=True),

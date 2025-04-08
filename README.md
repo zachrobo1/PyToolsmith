@@ -202,6 +202,10 @@ You can also set a custom serialization function to load the LLM's arguments int
 with
 `pytoolsmith_config.set_batch_tool_serializer(custom_serializer)`.
 
+The default batch tool will run each tool call in series. However, you can create your own function to run them in
+parallel by setting `pytoolsmith_config.set_batch_runner(custom_runner)`. This function takes a function that can
+process a list of callables and returns the list of results in order.
+
 **Vendor-Specific Options**
 <br>
 If needed, additional OpenAPI spec can be passed into a `ToolDefinition` constructor with the `additional_parameters`
