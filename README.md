@@ -187,8 +187,8 @@ def get_object_by_id(object_id: ObjectId) -> dict:
 One of the limitations of declaring your tool descriptions as docstrings is that they require code changes &
 redeployment to update a prompt. Services like
 Langfuse's [Prompt Management System](https://langfuse.com/docs/prompts/get-started) allow you to manage your prompts
-outside of code. You can take advantage of this functionality and build your prompts at Library instantiation by using
-the `@inject_into_docstring` decorator:
+outside of code. You can take advantage of this functionality and set prompts on the library as shown below, or on your
+call to `build_json_schema`:
 
 ```python
 from pytoolsmith import ToolLibrary, ToolDefinition
