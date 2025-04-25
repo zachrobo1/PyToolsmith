@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.13 - April 25, 2025
+
+### Added
+
+- Added `schema_vals` parameter to `ToolDefinition.build_json_schema()` to allow for customizing the schema values.
+
 ## 0.1.12 - April 7, 2025
 
 ### Added

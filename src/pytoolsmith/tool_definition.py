@@ -62,8 +62,9 @@ class ToolDefinition:
     Can be used as a way to filter which tools the LLM gets using `subset`.
     """
 
-    _schema_cache: ToolParameters | None = field(default=None, init=False, repr=False)
-    """A cached version of the schema for the tool."""
+    _schema_cache: dict[str, ToolParameters] = field(default_factory=dict, init=False,
+                                                     repr=False)
+    """Cached versions of the schema for the tool."""
 
     _tool_library: "ToolLibrary | None" = field(default=None, init=False, repr=False)
 
@@ -87,11 +88,30 @@ class ToolDefinition:
         self._tool_library = tool_library
 
     def build_json_schema(
-            self,
+            self, schema_vals: dict[str, str] | None = None
     ) -> ToolParameters:
-        """Builds a tool JSON schema for use in Bedrock from the tool definition."""
-        if self._schema_cache:
-            return self._schema_cache
+        """
+        Builds a ToolParameters object using the values and the variables specified.
+        Args:
+            schema_vals: A dictionary of variables and values to use when 
+            building the schema. Substitutes them out using mustache syntax.
+        """
+
+        if schema_vals is None:
+            schema_vals = {}
+
+        for var, value in schema_vals.items():
+            if not isinstance(value, str):
+                raise TypeError(
+                    f"Expected a string value for {var}, but got {type(value)}")
+            if not isinstance(var, str):
+                raise TypeError(
+                    f"Expected a string variable name for {var}, but got {type(var)}")
+
+        # use a stringified version of the vars dict as a key to cache the schema
+        var_key = str(schema_vals)
+        if var_key in self._schema_cache:
+            return self._schema_cache[var_key]
 
         func = self.function
         additional_parameters = self.additional_parameters
@@ -101,8 +121,8 @@ class ToolDefinition:
         param_desc_map = {}
         description = ""
         if func.__doc__:
-            param_desc_map = self._extract_param_descriptions()
-            description = self._extract_function_descriptions()
+            param_desc_map = self._extract_param_descriptions(schema_vals)
+            description = self._extract_function_descriptions(schema_vals)
 
         required_parameters = []
         param_map: dict[str, dict] = {}
@@ -119,13 +139,14 @@ class ToolDefinition:
                 required_parameters.append(param_name)
 
         # Store result in cache before returning
-        self._schema_cache = ToolParameters(
+        params = ToolParameters(
             name=self.name,
             required_parameters=required_parameters,
             input_properties=param_map,
             description=description,
         )
-        return self._schema_cache
+        self._schema_cache[var_key] = params
+        return params
 
     @overload
     def call_tool(self, llm_parameters: dict[str, Any],
@@ -300,7 +321,7 @@ class ToolDefinition:
 
         return param_map, is_required
 
-    def _extract_param_descriptions(self) -> dict[str, str]:
+    def _extract_param_descriptions(self, variables: dict[str, str]) -> dict[str, str]:
         """
         Extracts argument descriptions from a Google-style docstring.
 
@@ -363,6 +384,9 @@ class ToolDefinition:
                 "\n", ""
             )
 
+        for k, v in arg_descriptions.items():
+            arg_descriptions[k] = self._substitute_template_variables(v, variables)
+
         return arg_descriptions
 
     @staticmethod
@@ -405,7 +429,7 @@ class ToolDefinition:
             return get_args(param_type)
         return None
 
-    def _extract_function_descriptions(self) -> str:
+    def _extract_function_descriptions(self, variables: dict[str, str]) -> str:
         docstring = self.function.__doc__
 
         if not docstring or "Args:" not in docstring:
@@ -427,7 +451,9 @@ class ToolDefinition:
                 else:
                     desc_parts.append(" " + line.strip())
 
-        return "".join(desc_parts).replace("\n", " ").strip()
+        return self._substitute_template_variables(
+            "".join(desc_parts).replace("\n", " ").strip(), variables
+        )
 
     @staticmethod
     def _create_default_value(default_value: Any) -> str | None:
@@ -441,3 +467,25 @@ class ToolDefinition:
         if default_value is None:
             return "null"
         return None
+
+    @staticmethod
+    def _substitute_template_variables(text: str, variables: dict[str, str]) -> str:
+        """
+        Substitutes template variables in a string using mustache-style syntax.
+
+        Args:
+            text: The text containing template variables like {{VARIABLE_NAME}}
+            variables: A dictionary mapping variable names to their values
+
+        Returns:
+            The text with all template variables replaced with their values
+        """
+        if not text or not variables:
+            return text
+
+        result = text
+        for var_name, var_value in variables.items():
+            placeholder = "{{" + var_name + "}}"
+            result = result.replace(placeholder, str(var_value))
+
+        return result

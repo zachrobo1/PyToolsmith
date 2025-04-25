@@ -1,6 +1,6 @@
 [project]
 name = "pytoolsmith"
-version = "0.1.12"
+version = "0.1.13"
 description = "A lightweight Python library that simplifies the process of exposing functions as tools for Large Language Models"
 readme = "README.md"
 requires-python = ">=3.11"
