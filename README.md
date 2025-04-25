@@ -182,6 +182,45 @@ def get_object_by_id(object_id: ObjectId) -> dict:
     ...
 ```
 
+### Prompt Injection
+
+One of the limitations of declaring your tool descriptions as docstrings is that they require code changes &
+redeployment to update a prompt. Services like
+Langfuse's [Prompt Management System](https://langfuse.com/docs/prompts/get-started) allow you to manage your prompts
+outside of code. You can take advantage of this functionality and build your prompts at Library instantiation by using
+the `@inject_into_docstring` decorator:
+
+```python
+from pytoolsmith import ToolLibrary, ToolDefinition
+
+
+def new_tool(user_id: str) -> str:
+    """
+    {{MAIN_DESCRIPTION}}
+    Args:
+        user_id: {{USER_ID_DESCRIPTION}}
+    """
+    pass
+
+
+tool_library = ToolLibrary()
+tool_library.add_tool(ToolDefinition(function=new_tool))
+
+# When we are about to use the tool library, inject the prompt variables:
+tool_library.set_schema_vars(
+    {
+        "MAIN_DESCRIPTION": "This is the main description",
+        "USER_ID_DESCRIPTION": "This is the user id description"
+    }
+)
+
+tool_library.to_anthropic()
+# Will now output with the injected variables.
+
+tool_library.clear_schema_vars()
+# Now will output without the injected variables.
+```
+
 ### Additional Configuration
 
 **Library Subsetting**

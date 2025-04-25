@@ -28,6 +28,19 @@ class ToolLibrary:
         """Map of groups to the tool names inside of them."""
         self._include_batch_tool = include_batch_tool
 
+        self._schema_vars: dict[str, str] = {}
+
+    def set_schema_vars(self, schema_vars: dict[str, str]):
+        """Sets the schema variables for the library."""
+        self._schema_vars = schema_vars
+
+    def get_schema_vars(self) -> dict[str, str]:
+        return self._schema_vars
+
+    def clear_schema_vars(self):
+        """Clears out the schema variables for the library."""
+        self._schema_vars = {}
+
     def add_tool(self, tool: ToolDefinition):
         if tool.name in self._tools:
             raise ValueError(f"Duplicate tool name: {tool.name}")
@@ -67,13 +80,14 @@ class ToolLibrary:
         Returns a mapping tool names with the descriptions of the tool in the library.
         """
         return {
-            name: tool.build_json_schema().description
+            name: tool.build_json_schema(schema_vals=self._schema_vars).description
             for name, tool in self._tools.items()
         }
 
     def to_openai(self, *, strict_mode=True):
         return [
-            asdict(t.build_json_schema().to_openai(strict_mode=strict_mode))
+            asdict(t.build_json_schema(schema_vals=self._schema_vars).to_openai(
+                strict_mode=strict_mode))
             for t in self._tools.values()
         ]
 
@@ -83,7 +97,8 @@ class ToolLibrary:
         ] if self._include_batch_tool else []
 
         tools_params.extend([
-            t.build_json_schema() for t in self._tools.values()
+            t.build_json_schema(schema_vals=self._schema_vars) for t in
+            self._tools.values()
         ])
 
         ret_dict = []
@@ -125,7 +140,7 @@ class ToolLibrary:
         tool_list = []
 
         for tool in self._tools.values():
-            tool_def = tool.build_json_schema()
+            tool_def = tool.build_json_schema(schema_vals=self._schema_vars)
 
             tool_list.append(
                 asdict(GeminiTool(
