@@ -62,8 +62,9 @@ class ToolDefinition:
     Can be used as a way to filter which tools the LLM gets using `subset`.
     """
 
-    _schema_cache: ToolParameters | None = field(default=None, init=False, repr=False)
-    """A cached version of the schema for the tool."""
+    _schema_cache: dict[str, ToolParameters] = field(default_factory=dict, init=False,
+                                                     repr=False)
+    """Cached versions of the schema for the tool."""
 
     _tool_library: "ToolLibrary | None" = field(default=None, init=False, repr=False)
 
@@ -87,11 +88,30 @@ class ToolDefinition:
         self._tool_library = tool_library
 
     def build_json_schema(
-            self,
+            self, schema_vals: dict[str, str] | None = None
     ) -> ToolParameters:
-        """Builds a tool JSON schema for use in Bedrock from the tool definition."""
-        if self._schema_cache:
-            return self._schema_cache
+        """
+        Builds a ToolParameters object using the values and the variables specified.
+        Args:
+            schema_vals: A dictionary of variables and values to use when 
+            building the schema. Substitutes them out using mustache syntax.
+        """
+
+        if schema_vals is None:
+            schema_vals = {}
+
+        for var, value in schema_vals.items():
+            if not isinstance(value, str):
+                raise TypeError(
+                    f"Expected a string value for {var}, but got {type(value)}")
+            if not isinstance(var, str):
+                raise TypeError(
+                    f"Expected a string variable name for {var}, but got {type(var)}")
+
+        # use a stringified version of the vars dict as a key to cache the schema
+        var_key = str(schema_vals)
+        if var_key in self._schema_cache:
+            return self._schema_cache[var_key]
 
         func = self.function
         additional_parameters = self.additional_parameters
@@ -119,13 +139,14 @@ class ToolDefinition:
                 required_parameters.append(param_name)
 
         # Store result in cache before returning
-        self._schema_cache = ToolParameters(
+        params = ToolParameters(
             name=self.name,
             required_parameters=required_parameters,
             input_properties=param_map,
             description=description,
         )
-        return self._schema_cache
+        self._schema_cache[var_key] = params
+        return params
 
     @overload
     def call_tool(self, llm_parameters: dict[str, Any],
