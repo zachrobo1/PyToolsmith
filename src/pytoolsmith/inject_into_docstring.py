@@ -2,18 +2,18 @@ from functools import wraps
 import inspect
 
 
-def inject_into_docstring(variable_pairs: dict[str, str]):
+def inject_into_docstring(vars: dict[str, str]):
     """
     A decorator that substitutes variables in a docstring with the provided values.
     Useful to inject descriptions into a docstring at runtime.
 
     Args:
-        variable_pairs: A dictionary of variable names and the values to inject
+        vars: A dictionary of variable names and the values to inject
     Returns:
         A decorator function that will modify the docstring of the decorated function.
     """
 
-    for var, value in variable_pairs.items():
+    for var, value in vars.items():
         if not isinstance(value, str):
             raise TypeError(f"Expected a string value for {var}, but got {type(value)}")
         if not isinstance(var, str):
@@ -29,7 +29,7 @@ def inject_into_docstring(variable_pairs: dict[str, str]):
         docstring = inspect.getdoc(func) or ""
 
         # Replace the placeholder with the provided description
-        for var, value in variable_pairs.items():
+        for var, value in vars.items():
             docstring = docstring.replace("{{" + var + "}}", value)
 
         # Set the new docstring

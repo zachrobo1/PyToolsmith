@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.13 - April 25, 2025
+
+### Added
+
+- Added `inject_into_docstring` decorator.
+
 ## 0.1.12 - April 7, 2025
 
 ### Added
