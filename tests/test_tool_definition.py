@@ -344,3 +344,48 @@ def test_calling_tool():
     assert ((True,
              "Checking function using command: `SELECT * FROM table_name`") ==
             res_w_message)
+
+
+def test_build_tool_with_template_variables():
+    """
+    Tests that variables can be injected into the docstring when building the schema.
+    """
+
+    def function_with_template(
+            param1: str,
+            param2: int,
+    ) -> str:
+        """
+        A function with template variables in the docstring. {{VALUE}}
+
+        Args:
+            param1: A parameter with {{VARIABLE}} in description
+            param2: Another parameter with value {{VALUE}}
+
+        Returns: A string
+        """
+        return f"{param1} {param2}"
+
+    tool = ToolDefinition(function=function_with_template)
+
+    # Test with no variables (should leave templates as-is)
+    schema_no_vars = tool.build_json_schema()
+    assert "{{VARIABLE}}" in schema_no_vars.input_properties["param1"]["description"]
+    assert "{{VALUE}}" in schema_no_vars.input_properties["param2"]["description"]
+
+    # Test with variables substituted
+    schema_with_vars = tool.build_json_schema(
+        schema_vals={"VARIABLE": "substituted", "VALUE": "42"}
+    )
+
+    # Check that variables were properly substituted
+    assert "42" in schema_with_vars.description
+    assert "substituted" in schema_with_vars.input_properties["param1"]["description"]
+    assert "42" in schema_with_vars.input_properties["param2"]["description"]
+    assert "{{VALUE}}" not in schema_with_vars.description
+    assert "{{VARIABLE}}" not in schema_with_vars.input_properties["param1"][
+        "description"]
+    assert "{{VALUE}}" not in schema_with_vars.input_properties["param2"]["description"]
+
+    # Check that function description also gets substituted
+    assert "template variables" in schema_with_vars.description

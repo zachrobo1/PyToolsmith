@@ -121,8 +121,8 @@ class ToolDefinition:
         param_desc_map = {}
         description = ""
         if func.__doc__:
-            param_desc_map = self._extract_param_descriptions()
-            description = self._extract_function_descriptions()
+            param_desc_map = self._extract_param_descriptions(schema_vals)
+            description = self._extract_function_descriptions(schema_vals)
 
         required_parameters = []
         param_map: dict[str, dict] = {}
@@ -321,7 +321,7 @@ class ToolDefinition:
 
         return param_map, is_required
 
-    def _extract_param_descriptions(self) -> dict[str, str]:
+    def _extract_param_descriptions(self, variables: dict[str, str]) -> dict[str, str]:
         """
         Extracts argument descriptions from a Google-style docstring.
 
@@ -384,6 +384,9 @@ class ToolDefinition:
                 "\n", ""
             )
 
+        for k, v in arg_descriptions.items():
+            arg_descriptions[k] = self._substitute_template_variables(v, variables)
+
         return arg_descriptions
 
     @staticmethod
@@ -426,7 +429,7 @@ class ToolDefinition:
             return get_args(param_type)
         return None
 
-    def _extract_function_descriptions(self) -> str:
+    def _extract_function_descriptions(self, variables: dict[str, str]) -> str:
         docstring = self.function.__doc__
 
         if not docstring or "Args:" not in docstring:
@@ -448,7 +451,9 @@ class ToolDefinition:
                 else:
                     desc_parts.append(" " + line.strip())
 
-        return "".join(desc_parts).replace("\n", " ").strip()
+        return self._substitute_template_variables(
+            "".join(desc_parts).replace("\n", " ").strip(), variables
+        )
 
     @staticmethod
     def _create_default_value(default_value: Any) -> str | None:
@@ -462,3 +467,25 @@ class ToolDefinition:
         if default_value is None:
             return "null"
         return None
+
+    @staticmethod
+    def _substitute_template_variables(text: str, variables: dict[str, str]) -> str:
+        """
+        Substitutes template variables in a string using mustache-style syntax.
+
+        Args:
+            text: The text containing template variables like {{VARIABLE_NAME}}
+            variables: A dictionary mapping variable names to their values
+
+        Returns:
+            The text with all template variables replaced with their values
+        """
+        if not text or not variables:
+            return text
+
+        result = text
+        for var_name, var_value in variables.items():
+            placeholder = "{{" + var_name + "}}"
+            result = result.replace(placeholder, str(var_value))
+
+        return result
