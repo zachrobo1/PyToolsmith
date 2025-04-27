@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.14 - April 27, 2025
+
+### Bug Fixes
+
+- Fixed a bug where `schema_vals` was not being passed to the `build_json_schema` method for Bedrock.
+
 ## 0.1.13 - April 25, 2025
 
 ### Added
