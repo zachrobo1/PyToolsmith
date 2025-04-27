@@ -118,7 +118,8 @@ class ToolLibrary:
         bedrock_config = AwsBedrockConverseToolConfig(
             tools=[
                       AwsBedrockToolSpecListObject(
-                          toolSpec=t.build_json_schema().to_bedrock(as_dict=True)
+                          toolSpec=t.build_json_schema(
+                              schema_vals=self._schema_vars).to_bedrock(as_dict=True)
                       )
                       for t in self._tools.values()
                   ] + batch_tool_addition
