@@ -548,11 +548,11 @@ class ToolDefinition:
         # Collect all definitions and remove them
         _collect_definitions(data)
 
-        # Update all $ref references
-        _update_refs(data)
-
         # Add consolidated definitions at top level under "$defs"
         if collected_definitions:
             data["$defs"] = collected_definitions
+
+        # Update all $ref references (including those in the collected definitions)
+        _update_refs(data)
 
         return data

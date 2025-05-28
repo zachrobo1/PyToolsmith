@@ -443,26 +443,9 @@ def test_reformat_pydantic_definitions():
     assert result == expected_output
 
 
-class Address(BaseModel):
-    street: str
-    city: str
-    zip_code: str
-
-
-class User(BaseModel):
-    name: str
-    address: Address  # ← uses Address once
-
-
-class Company(BaseModel):
-    name: str
-    headquarters: Address  # ← uses Address a second time → triggers $ref
-    employees: list[User]
-
-
-def test_tool_with_complex_type_pydantic_v2():
-    def tool_with_complex_input(company: Company):
-        return f"Hello {company.name}!"
+def test_tool_with_complex_type_pydantic_v2(pydantic_company_model):
+    def tool_with_complex_input(company: pydantic_company_model):
+        return f"Hello {getattr(company, 'name')}!"
 
     tool = ToolDefinition(function=tool_with_complex_input)
 

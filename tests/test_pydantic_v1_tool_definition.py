@@ -66,9 +66,9 @@ def test_build_tool_for_list_of_items():
     )
 
 
-def test_tool_with_complex_type_pydantic_v1():
-    def tool_with_complex_input(company: Company):
-        return f"Hello {company.name}!"
+def test_tool_with_complex_type_pydantic_v1(pydantic_company_model_v1):
+    def tool_with_complex_input(company: pydantic_company_model_v1):
+        return f"Hello {getattr(company, 'name')}!"
 
     tool = ToolDefinition(function=tool_with_complex_input)
 
