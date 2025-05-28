@@ -156,3 +156,37 @@ def test_tool_library_nested_pydantic_and_anthropic(live_anthropic_client,
         max_tokens=100,
     )
     assert "company" in result.content[0].text.lower()
+
+
+@mark.llm_test
+def test_tool_library_nested_pydantic_and_openai(live_openai_client,
+                                                 pydantic_company_model):
+    Company = pydantic_company_model
+
+    def greet_company(company: Company):
+        """
+        Greets a company.
+        Args:
+            company: The company to greet.
+
+        Returns: A greeting message personalized for the company.
+
+        """
+        return f"Hello {getattr(company, 'name')}!"
+
+    library = ToolLibrary()
+    library.add_tool(ToolDefinition(function=greet_company))
+
+    result = live_openai_client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            ChatCompletionSystemMessageParam(role="system", content=_SYS_MESSAGE),
+            ChatCompletionUserMessageParam(
+                role="user",
+                content="What information do you need to greet the company?"
+            )
+        ],
+        tools=library.to_openai(strict_mode=False),
+        max_completion_tokens=100,
+    )
+    assert "company" in result.choices[0].message.content.lower()
