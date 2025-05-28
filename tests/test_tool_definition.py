@@ -433,7 +433,10 @@ def test_reformat_pydantic_definitions():
         }
     }
 
-    result = ToolDefinition._reformat_pydantic_definitions(input_data)
+    result = ToolDefinition._reformat_pydantic_definitions(
+        input_data,
+        def_key="definitions"
+    )
     assert result == expected_output
 
 
