@@ -83,11 +83,11 @@ def test_tool_with_complex_type_pydantic_v1(pydantic_company_model_v1):
                     'type': 'string'
                 },
                 'headquarters': {
-                    '$ref': '#/$defs/Address'
+                    '$ref': '#/definitions/Address'
                 },
                 'employees': {
                     'items': {
-                        '$ref': '#/$defs/User'
+                        '$ref': '#/definitions/User'
                     },
                     'title': 'Employees',
                     'type': 'array'
@@ -96,7 +96,7 @@ def test_tool_with_complex_type_pydantic_v1(pydantic_company_model_v1):
             'required': ['name', 'headquarters', 'employees'],
             'title': 'Company'
         },
-        '$defs': {
+        'definitions': {
             'Address': {
                 'properties': {
                     'street': {'title': 'Street', 'type': 'string'},
@@ -109,7 +109,7 @@ def test_tool_with_complex_type_pydantic_v1(pydantic_company_model_v1):
             'User': {
                 'properties': {
                     'name': {'title': 'Name', 'type': 'string'},
-                    'address': {'$ref': '#/$defs/Address'}},
+                    'address': {'$ref': '#/definitions/Address'}},
                 'required': ['name', 'address'],
                 'title': 'User',
                 'type': 'object'

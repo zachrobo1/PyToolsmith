@@ -537,8 +537,8 @@ class ToolDefinition:
                 for key, value in obj.items():
                     if key == "$ref" and isinstance(value, str):
                         # Update references from "#/definitions/" to "#/$defs/"
-                        if value.startswith("#/definitions/"):
-                            obj[key] = value.replace("#/definitions/", "#/$defs/")
+                        if value.startswith("#/$defs/"):
+                            obj[key] = value.replace("#/$defs/", "#/definitions/")
                     else:
                         _update_refs(value)
             elif isinstance(obj, list):
@@ -550,7 +550,7 @@ class ToolDefinition:
 
         # Add consolidated definitions at top level under "$defs"
         if collected_definitions:
-            data["$defs"] = collected_definitions
+            data["definitions"] = collected_definitions
 
         # Update all $ref references (including those in the collected definitions)
         _update_refs(data)
