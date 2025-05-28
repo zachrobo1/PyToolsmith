@@ -29,17 +29,22 @@ class ToolParameters:
     name: str
     description: str
 
-    def to_bedrock(self, as_dict: bool = True) -> AwsBedrockToolParam | dict:
+    def to_bedrock(self, as_dict: bool = True, exclude_fields: list[
+        str] = None) -> AwsBedrockToolParam | dict:
         """
         Returns a Bedrock-compatible tool definition.
         `as_dict` set to True will allow you to pass it directly to Bedrock.
         """
+        properties = deepcopy(self.input_properties)
+        if exclude_fields is not None:
+            properties = remove_keys(properties, exclude_fields)
+
         param = AwsBedrockToolParam(
             name=self.name,
             inputSchema=AwsBedrockToolSchemaJson(
                 json=AwsBedrockToolInputSchema(
                     type="object",
-                    properties=self.input_properties,
+                    properties=properties,
                     required=self.required_parameters,
                 )
             ),
@@ -50,7 +55,13 @@ class ToolParameters:
             return asdict(param)
         return param
 
-    def to_anthropic(self, use_cache_control: bool = False) -> AnthropicToolParam:
+    def to_anthropic(self, use_cache_control: bool = False,
+                     exclude_fields: list[str] = None) -> AnthropicToolParam:
+
+        properties = deepcopy(self.input_properties)
+        if exclude_fields is not None:
+            properties = remove_keys(properties, exclude_fields)
+
         return AnthropicToolParam(
             name=self.name,
             description=self.description,
@@ -58,24 +69,32 @@ class ToolParameters:
             if use_cache_control
             else None,
             input_schema=AnthropicInputSchema(
-                type="object", properties=self.input_properties,
+                type="object", properties=properties,
                 required=self.required_parameters
             ),
         )
 
-    def to_openai(self, *, strict_mode=True) -> OpenAIToolParam:
+    def to_openai(self, *, strict_mode=True,
+                  exclude_fields: list[str] = None) -> OpenAIToolParam:
         """
         Strict mode has a better guarantee that the LLM will use the tool correctly. 
         However, it removes additional formatting information and defaults from the 
         LLM's context.
+        
+        If you want to remove additional keys rom definitions, you can pass them in 
+        here as well.
         """
-        params = deepcopy(self.input_properties)
+
+        properties = deepcopy(self.input_properties)
         if strict_mode:
             # We have to remove extra keys such as "format" from the properties...
-            params = remove_keys(
-                params,
+            properties = remove_keys(
+                properties,
                 ["format", "default"]
             )
+        if exclude_fields:
+            properties = remove_keys(properties, exclude_fields)
+
         return OpenAIToolParam(
             function=OpenAIFunctionDefinition(
                 name=self.name,
@@ -83,9 +102,9 @@ class ToolParameters:
                 parameters=OpenAIFunctionParameters(
                     type="object",
                     additionalProperties=not strict_mode,
-                    properties=params,
+                    properties=properties,
                     required=list(
-                        params.keys()) if strict_mode else self.required_parameters,
+                        properties.keys()) if strict_mode else self.required_parameters,
                 ),
                 strict=strict_mode,
             ),
