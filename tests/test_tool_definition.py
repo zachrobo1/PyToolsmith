@@ -389,3 +389,116 @@ def test_build_tool_with_template_variables():
 
     # Check that function description also gets substituted
     assert "template variables" in schema_with_vars.description
+
+
+def test_reformat_pydantic_definitions():
+    """Test that definitions are collected from nested locations and moved to top level"""
+
+    # Input object with definitions scattered throughout
+    input_data = {
+        "name": "test_schema",
+        "definitions": {
+            "TopLevel": {"type": "object"}
+        },
+        "nested": {
+            "definitions": {
+                "NestedModel": {"type": "string"}
+            },
+            "data": "some_value"
+        },
+        "deep": {
+            "very": {
+                "definitions": {
+                    "DeepModel": {"type": "number"}
+                }
+            }
+        }
+    }
+
+    # Expected output with all definitions at top level
+    expected_output = {
+        "name": "test_schema",
+        "nested": {
+            "data": "some_value"
+        },
+        "deep": {
+            "very": {}
+        },
+        "definitions": {
+            "TopLevel": {"type": "object"},
+            "NestedModel": {"type": "string"},
+            "DeepModel": {"type": "number"}
+        }
+    }
+
+    result = ToolDefinition._reformat_pydantic_definitions(input_data)
+    assert result == expected_output
+
+
+class Address(BaseModel):
+    street: str
+    city: str
+    zip_code: str
+
+
+class User(BaseModel):
+    name: str
+    address: Address  # ← uses Address once
+
+
+class Company(BaseModel):
+    name: str
+    headquarters: Address  # ← uses Address a second time → triggers $ref
+    employees: list[User]
+
+
+def test_tool_with_complex_type_pydantic_v2():
+    def tool_with_complex_input(company: Company):
+        return f"Hello {company.name}!"
+
+    tool = ToolDefinition(function=tool_with_complex_input)
+
+    schema = tool.build_json_schema()
+
+    assert schema.input_properties == {
+        'company': {
+            'type': 'object',
+            '$defs': {
+                'Address': {
+                    'properties': {
+                        'street': {'title': 'Street', 'type': 'string'},
+                        'city': {'title': 'City', 'type': 'string'},
+                        'zip_code': {'title': 'Zip Code', 'type': 'string'}},
+                    'required': ['street', 'city', 'zip_code'],
+                    'title': 'Address',
+                    'type': 'object'
+                },
+                'User': {
+                    'properties': {
+                        'name': {'title': 'Name', 'type': 'string'},
+                        'address': {'$ref': '#/$defs/Address'}},
+                    'required': ['name', 'address'],
+                    'title': 'User',
+                    'type': 'object'
+                }
+            },
+            'properties': {
+                'name': {
+                    'title': 'Name',
+                    'type': 'string'
+                },
+                'headquarters': {
+                    '$ref': '#/$defs/Address'
+                },
+                'employees': {
+                    'items': {
+                        '$ref': '#/$defs/User'
+                    },
+                    'title': 'Employees',
+                    'type': 'array'
+                }
+            },
+            'required': ['name', 'headquarters', 'employees'],
+            'title': 'Company'
+        }
+    }

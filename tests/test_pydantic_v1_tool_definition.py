@@ -8,6 +8,23 @@ class PersonInfoPydanticV1(BaseModel):
     last_name: str | None = None
 
 
+class Address(BaseModel):
+    street: str
+    city: str
+    zip_code: str
+
+
+class User(BaseModel):
+    name: str
+    address: Address  # ← uses Address once
+
+
+class Company(BaseModel):
+    name: str
+    headquarters: Address  # ← uses Address a second time → triggers $ref
+    employees: list[User]
+
+
 def _list_of_items_func(model_list: list[PersonInfoPydanticV1]):
     print(f"BaseModel len: {len(model_list)}")
     return ""
@@ -47,3 +64,55 @@ def test_build_tool_for_list_of_items():
             )
 
     )
+
+
+def test_tool_with_complex_type_pydantic_v1():
+    def tool_with_complex_input(company: Company):
+        return f"Hello {company.name}!"
+
+    tool = ToolDefinition(function=tool_with_complex_input)
+
+    schema = tool.build_json_schema()
+
+    assert schema.input_properties == {
+        'company': {
+            'type': 'object',
+            'definitions': {
+                'Address': {
+                    'properties': {
+                        'street': {'title': 'Street', 'type': 'string'},
+                        'city': {'title': 'City', 'type': 'string'},
+                        'zip_code': {'title': 'Zip Code', 'type': 'string'}},
+                    'required': ['street', 'city', 'zip_code'],
+                    'title': 'Address',
+                    'type': 'object'
+                },
+                'User': {
+                    'properties': {
+                        'name': {'title': 'Name', 'type': 'string'},
+                        'address': {'$ref': '#/definitions/Address'}},
+                    'required': ['name', 'address'],
+                    'title': 'User',
+                    'type': 'object'
+                }
+            },
+            'properties': {
+                'name': {
+                    'title': 'Name',
+                    'type': 'string'
+                },
+                'headquarters': {
+                    '$ref': '#/definitions/Address'
+                },
+                'employees': {
+                    'items': {
+                        '$ref': '#/definitions/User'
+                    },
+                    'title': 'Employees',
+                    'type': 'array'
+                }
+            },
+            'required': ['name', 'headquarters', 'employees'],
+            'title': 'Company'
+        }
+    }
