@@ -392,7 +392,9 @@ def test_build_tool_with_template_variables():
 
 
 def test_reformat_pydantic_definitions():
-    """Test that definitions are collected from nested locations and moved to top level"""
+    """
+    Test that definitions are collected from nested locations and moved to top level
+    """
 
     # Input object with definitions scattered throughout
     input_data = {
