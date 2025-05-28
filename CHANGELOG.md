@@ -2,6 +2,16 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.15 - May 27, 2025
+
+### Added
+
+- Added a `exclude_fields` parameter that can be used to remove fields from generated definitions.
+
+### Bug Fixes
+
+- Fixed a bug where complex Pydantic models would generate invalid JSON schemas due to the nested references.
+
 ## 0.1.14 - April 27, 2025
 
 ### Bug Fixes

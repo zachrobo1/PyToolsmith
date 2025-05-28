@@ -232,6 +232,11 @@ a `tool_group` parameter on your ToolDefinitions.
 To use, call the `subset()` method on a ToolLibrary instance to get a smaller library generated. Additionally, you can
 use `exclude()` to get the opposite effect.
 
+**Field Exclusion**
+
+Sometimes, your tool definitions may have fields that you don't want to pass to the LLM. You can use
+the `exclude_fields` parameter on the `to_<provider>` methods to remove these.
+
 **Batch Tool**
 <br>
 When using Claude 3.7, Anthropic suggests adding
