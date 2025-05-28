@@ -283,10 +283,16 @@ class ToolDefinition:
                 enums.extend(get_args(param_type))
             elif hasattr(param_type, "model_json_schema"):
                 # Handle types with model_json_schema method (like v2 Pydantic models)
-                schema_dict.update(param_type.model_json_schema())
+                schema_dict.update(
+                    self._reformat_pydantic_definitions(param_type.model_json_schema())
+                )
             elif hasattr(param_type, "schema"):
                 # Handle types with model_json_schema method (like v1 Pydantic models)
-                schema_dict.update(param_type.schema())
+                schema_dict.update(
+                    self._reformat_pydantic_definitions(
+                        param_type.schema(),
+                        def_key="definitions")
+                )
             else:
                 # Handle additional format updates.
                 for formattable_type, format_value in get_format_map().items():
@@ -489,3 +495,50 @@ class ToolDefinition:
             result = result.replace(placeholder, str(var_value))
 
         return result
+
+    @staticmethod
+    def _reformat_pydantic_definitions(data: dict, def_key="$defs"):
+        """
+        For pydantic models, we need to move all definitions to the top level.
+
+        Args:
+            data: Dictionary to process
+
+        Returns:
+            Dictionary with all definitions moved to top level
+        """
+        collected_definitions = {}
+
+        def _collect_definitions(obj, path=""):
+            """
+            Recursively collect definitions and remove them from original locations
+            """
+            nonlocal def_key
+            if isinstance(obj, dict):
+                # Check if current dict has 'definitions' key
+                if def_key in obj:
+                    # Collect the definitions
+                    definitions = obj[def_key]
+                    if isinstance(definitions, dict):
+                        collected_definitions.update(definitions)
+                    # Remove from original location
+                    del obj[def_key]
+
+                # Recursively process all values
+                for key, value in list(
+                        obj.items()):  # Use list() to avoid changes during iteration
+                    _collect_definitions(value, f"{path}.{key}" if path else key)
+
+            elif isinstance(obj, list):
+                # Process each item in the list
+                for item in obj:
+                    _collect_definitions(item, path)
+
+        # Collect all definitions and remove them
+        _collect_definitions(data)
+
+        # Add consolidated definitions at top level
+        if collected_definitions:
+            data[def_key] = collected_definitions
+
+        return data
