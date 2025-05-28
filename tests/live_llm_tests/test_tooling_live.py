@@ -120,3 +120,39 @@ def test_tool_library_nested_pydantic_and_bedrock(live_bedrock_client,
         inferenceConfig={"maxTokens": 100},
     )["output"]["message"]
     assert "company" in result['content'][0]['text'].lower()
+
+
+@mark.llm_test
+def test_tool_library_nested_pydantic_and_anthropic(live_anthropic_client,
+                                                    pydantic_company_model):
+    Company = pydantic_company_model
+
+    def greet_company(company: Company):
+        """
+        Greets a company.
+        Args:
+            company: The company to greet.
+
+        Returns: A greeting message personalized for the company.
+
+        """
+        return f"Hello {getattr(company, 'name')}!"
+
+    library = ToolLibrary()
+    library.add_tool(ToolDefinition(function=greet_company))
+
+    result = live_anthropic_client.messages.create(
+        system=_SYS_MESSAGE,
+        tools=library.to_anthropic(use_cache_control=True),
+        model="claude-3-7-sonnet-latest",
+        messages=[
+            MessageParam(
+                role="user",
+                content=[TextBlockParam(
+                    text="What information do you need to greet the company?",
+                    type="text")],
+            )
+        ],
+        max_tokens=100,
+    )
+    assert "company" in result.content[0].text.lower()

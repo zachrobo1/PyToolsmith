@@ -65,6 +65,8 @@ class ToolParameters:
         if exclude_fields is not None:
             properties = remove_keys(properties, exclude_fields)
 
+        definitions = properties.pop("definitions", {})
+
         return AnthropicToolParam(
             name=self.name,
             description=self.description,
@@ -72,8 +74,10 @@ class ToolParameters:
             if use_cache_control
             else None,
             input_schema=AnthropicInputSchema(
-                type="object", properties=properties,
-                required=self.required_parameters
+                type="object",
+                properties=properties,
+                required=self.required_parameters,
+                definitions=definitions
             ),
         )
 
