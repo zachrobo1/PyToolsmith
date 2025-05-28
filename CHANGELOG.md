@@ -2,6 +2,12 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 0.1.16 - May 28, 2025
+
+### Bug Fixes
+
+- Fixed an issue with JSON schema generation for complex pydantic models.
+
 ## 0.1.15 - May 27, 2025
 
 ### Added

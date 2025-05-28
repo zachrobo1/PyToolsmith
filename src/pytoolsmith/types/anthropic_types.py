@@ -15,6 +15,7 @@ class AnthropicInputSchema:
     required: list[str]
     properties: dict
     """The input properties"""
+    definitions: dict
 
 
 @dataclass

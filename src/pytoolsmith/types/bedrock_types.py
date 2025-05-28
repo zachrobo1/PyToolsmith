@@ -13,6 +13,8 @@ class AwsBedrockToolInputSchema:
     """The json schema explaining the inputs to the function"""
     required: list[str]
     """List of required inputs to the tool"""
+    definitions: dict
+    """Any referenced definitions for bedrock."""
 
 
 @dataclass

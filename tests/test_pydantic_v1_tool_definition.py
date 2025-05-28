@@ -66,9 +66,9 @@ def test_build_tool_for_list_of_items():
     )
 
 
-def test_tool_with_complex_type_pydantic_v1():
-    def tool_with_complex_input(company: Company):
-        return f"Hello {company.name}!"
+def test_tool_with_complex_type_pydantic_v1(pydantic_company_model_v1):
+    def tool_with_complex_input(company: pydantic_company_model_v1):
+        return f"Hello {getattr(company, 'name')}!"
 
     tool = ToolDefinition(function=tool_with_complex_input)
 
@@ -77,25 +77,6 @@ def test_tool_with_complex_type_pydantic_v1():
     assert schema.input_properties == {
         'company': {
             'type': 'object',
-            'definitions': {
-                'Address': {
-                    'properties': {
-                        'street': {'title': 'Street', 'type': 'string'},
-                        'city': {'title': 'City', 'type': 'string'},
-                        'zip_code': {'title': 'Zip Code', 'type': 'string'}},
-                    'required': ['street', 'city', 'zip_code'],
-                    'title': 'Address',
-                    'type': 'object'
-                },
-                'User': {
-                    'properties': {
-                        'name': {'title': 'Name', 'type': 'string'},
-                        'address': {'$ref': '#/definitions/Address'}},
-                    'required': ['name', 'address'],
-                    'title': 'User',
-                    'type': 'object'
-                }
-            },
             'properties': {
                 'name': {
                     'title': 'Name',
@@ -114,5 +95,24 @@ def test_tool_with_complex_type_pydantic_v1():
             },
             'required': ['name', 'headquarters', 'employees'],
             'title': 'Company'
-        }
+        },
+        'definitions': {
+            'Address': {
+                'properties': {
+                    'street': {'title': 'Street', 'type': 'string'},
+                    'city': {'title': 'City', 'type': 'string'},
+                    'zip_code': {'title': 'Zip Code', 'type': 'string'}},
+                'required': ['street', 'city', 'zip_code'],
+                'title': 'Address',
+                'type': 'object'
+            },
+            'User': {
+                'properties': {
+                    'name': {'title': 'Name', 'type': 'string'},
+                    'address': {'$ref': '#/definitions/Address'}},
+                'required': ['name', 'address'],
+                'title': 'User',
+                'type': 'object'
+            }
+        },
     }

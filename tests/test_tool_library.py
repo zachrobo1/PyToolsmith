@@ -38,16 +38,24 @@ def test_cast_library_to_anthropic(filled_tool_library):
         {
             "cache_control": None,
             "description": "Desc for func 1",
-            "input_schema": {"properties": {"a": {"type": "string"}}, "type": "object",
-                             "required": ["a"]},
+            "input_schema": {"properties": {"a": {"type": "string"}},
+                             "type": "object",
+                             "definitions": {},
+                             "required": ["a"]
+                             },
             "name": "_func_to_test_1",
+
         },
         {
             "cache_control": {"type": "ephemeral"},
             "description": "Desc for func 2",
-            "input_schema": {"properties": {"b": {"type": "string"}}, "type": "object",
-                             "required": ["b"]},
+            "input_schema": {"properties": {"b": {"type": "string"}},
+                             "type": "object",
+                             "definitions": {},
+                             "required": ["b"]
+                             },
             "name": "_func_to_test_2",
+
         },
     ]
 
