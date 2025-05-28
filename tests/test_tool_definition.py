@@ -406,7 +406,9 @@ def test_reformat_pydantic_definitions():
             "definitions": {
                 "NestedModel": {"type": "string"}
             },
-            "data": "some_value"
+            "data": {
+                "$ref": "#/definitions/NestedModel"
+            }
         },
         "deep": {
             "very": {
@@ -421,12 +423,14 @@ def test_reformat_pydantic_definitions():
     expected_output = {
         "name": "test_schema",
         "nested": {
-            "data": "some_value"
+            "data": {
+                "$ref": "#/$defs/NestedModel"
+            }
         },
         "deep": {
             "very": {}
         },
-        "definitions": {
+        "$defs": {
             "TopLevel": {"type": "object"},
             "NestedModel": {"type": "string"},
             "DeepModel": {"type": "number"}
@@ -435,7 +439,6 @@ def test_reformat_pydantic_definitions():
 
     result = ToolDefinition._reformat_pydantic_definitions(
         input_data,
-        def_key="definitions"
     )
     assert result == expected_output
 
@@ -468,25 +471,6 @@ def test_tool_with_complex_type_pydantic_v2():
     assert schema.input_properties == {
         'company': {
             'type': 'object',
-            '$defs': {
-                'Address': {
-                    'properties': {
-                        'street': {'title': 'Street', 'type': 'string'},
-                        'city': {'title': 'City', 'type': 'string'},
-                        'zip_code': {'title': 'Zip Code', 'type': 'string'}},
-                    'required': ['street', 'city', 'zip_code'],
-                    'title': 'Address',
-                    'type': 'object'
-                },
-                'User': {
-                    'properties': {
-                        'name': {'title': 'Name', 'type': 'string'},
-                        'address': {'$ref': '#/$defs/Address'}},
-                    'required': ['name', 'address'],
-                    'title': 'User',
-                    'type': 'object'
-                }
-            },
             'properties': {
                 'name': {
                     'title': 'Name',
@@ -505,5 +489,24 @@ def test_tool_with_complex_type_pydantic_v2():
             },
             'required': ['name', 'headquarters', 'employees'],
             'title': 'Company'
-        }
+        },
+        '$defs': {
+            'Address': {
+                'properties': {
+                    'street': {'title': 'Street', 'type': 'string'},
+                    'city': {'title': 'City', 'type': 'string'},
+                    'zip_code': {'title': 'Zip Code', 'type': 'string'}},
+                'required': ['street', 'city', 'zip_code'],
+                'title': 'Address',
+                'type': 'object'
+            },
+            'User': {
+                'properties': {
+                    'name': {'title': 'Name', 'type': 'string'},
+                    'address': {'$ref': '#/$defs/Address'}},
+                'required': ['name', 'address'],
+                'title': 'User',
+                'type': 'object'
+            }
+        },
     }

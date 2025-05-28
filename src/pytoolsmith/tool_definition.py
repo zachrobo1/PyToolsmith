@@ -142,7 +142,7 @@ class ToolDefinition:
         params = ToolParameters(
             name=self.name,
             required_parameters=required_parameters,
-            input_properties=param_map,
+            input_properties=self._reformat_pydantic_definitions(param_map),
             description=description,
         )
         self._schema_cache[var_key] = params
@@ -283,16 +283,10 @@ class ToolDefinition:
                 enums.extend(get_args(param_type))
             elif hasattr(param_type, "model_json_schema"):
                 # Handle types with model_json_schema method (like v2 Pydantic models)
-                schema_dict.update(
-                    self._reformat_pydantic_definitions(param_type.model_json_schema())
-                )
+                schema_dict.update(param_type.model_json_schema())
             elif hasattr(param_type, "schema"):
                 # Handle types with model_json_schema method (like v1 Pydantic models)
-                schema_dict.update(
-                    self._reformat_pydantic_definitions(
-                        param_type.schema(),
-                        def_key="definitions")
-                )
+                schema_dict.update(param_type.schema())
             else:
                 # Handle additional format updates.
                 for formattable_type, format_value in get_format_map().items():
@@ -497,15 +491,16 @@ class ToolDefinition:
         return result
 
     @staticmethod
-    def _reformat_pydantic_definitions(data: dict, def_key="$defs"):
+    def _reformat_pydantic_definitions(data: dict):
         """
         For pydantic models, we need to move all definitions to the top level.
+        Handles both "$defs" and "definitions" keys, consolidating under "$defs".
 
         Args:
             data: Dictionary to process
 
         Returns:
-            Dictionary with all definitions moved to top level
+            Dictionary with all definitions moved to top level under "$defs"
         """
         collected_definitions = {}
 
@@ -513,16 +508,16 @@ class ToolDefinition:
             """
             Recursively collect definitions and remove them from original locations
             """
-            nonlocal def_key
             if isinstance(obj, dict):
-                # Check if current dict has 'definitions' key
-                if def_key in obj:
-                    # Collect the definitions
-                    definitions = obj[def_key]
-                    if isinstance(definitions, dict):
-                        collected_definitions.update(definitions)
-                    # Remove from original location
-                    del obj[def_key]
+                # Check for both "$defs" and "definitions" keys
+                for key in ["$defs", "definitions"]:
+                    if key in obj:
+                        # Collect the definitions
+                        definitions = obj[key]
+                        if isinstance(definitions, dict):
+                            collected_definitions.update(definitions)
+                        # Remove from original location
+                        del obj[key]
 
                 # Recursively process all values
                 for key, value in list(
@@ -534,11 +529,30 @@ class ToolDefinition:
                 for item in obj:
                     _collect_definitions(item, path)
 
+        def _update_refs(obj):
+            """
+            Recursively update $ref references from "definitions" to "$defs"
+            """
+            if isinstance(obj, dict):
+                for key, value in obj.items():
+                    if key == "$ref" and isinstance(value, str):
+                        # Update references from "#/definitions/" to "#/$defs/"
+                        if value.startswith("#/definitions/"):
+                            obj[key] = value.replace("#/definitions/", "#/$defs/")
+                    else:
+                        _update_refs(value)
+            elif isinstance(obj, list):
+                for item in obj:
+                    _update_refs(item)
+
         # Collect all definitions and remove them
         _collect_definitions(data)
 
-        # Add consolidated definitions at top level
+        # Update all $ref references
+        _update_refs(data)
+
+        # Add consolidated definitions at top level under "$defs"
         if collected_definitions:
-            data[def_key] = collected_definitions
+            data["$defs"] = collected_definitions
 
         return data
