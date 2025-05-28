@@ -84,14 +84,15 @@ class ToolLibrary:
             for name, tool in self._tools.items()
         }
 
-    def to_openai(self, *, strict_mode=True):
+    def to_openai(self, *, strict_mode=True, exclude_fields: list[str] = None):
         return [
             asdict(t.build_json_schema(schema_vals=self._schema_vars).to_openai(
-                strict_mode=strict_mode))
+                strict_mode=strict_mode, exclude_fields=exclude_fields))
             for t in self._tools.values()
         ]
 
-    def to_anthropic(self, *, use_cache_control: bool = False):
+    def to_anthropic(self, *, use_cache_control: bool = False,
+                     exclude_fields: list[str] = None):
         tools_params = [
             batch_tool_parameters
         ] if self._include_batch_tool else []
@@ -106,11 +107,15 @@ class ToolLibrary:
         # Cache control should only be set on the last tool.
         for i, p in enumerate(tools_params):
             ret_dict.append(asdict(
-                p.to_anthropic(use_cache_control=use_cache_control and i == last_i)))
+                p.to_anthropic(use_cache_control=use_cache_control and i == last_i,
+                               exclude_fields=exclude_fields)
+            )
+            )
 
         return ret_dict
 
-    def to_bedrock(self, use_cache_control: bool = False) -> dict:
+    def to_bedrock(self, use_cache_control: bool = False,
+                   exclude_fields: list[str] = None) -> dict:
         batch_tool_addition = [
             AwsBedrockToolSpecListObject(toolSpec=batch_tool_parameters.to_bedrock(
                 as_dict=True))
@@ -119,7 +124,10 @@ class ToolLibrary:
             tools=[
                       AwsBedrockToolSpecListObject(
                           toolSpec=t.build_json_schema(
-                              schema_vals=self._schema_vars).to_bedrock(as_dict=True)
+                              schema_vals=self._schema_vars).to_bedrock(
+                              as_dict=True,
+                              exclude_fields=exclude_fields
+                          )
                       )
                       for t in self._tools.values()
                   ] + batch_tool_addition
@@ -128,15 +136,17 @@ class ToolLibrary:
             bedrock_config.tools.append(AwsBedrockCachePointObject())
         return asdict(bedrock_config)
 
-    def to_gemini(self) -> list:
+    def to_gemini(self, exclude_fields: list[str] = None) -> list:
         """
         Generates a list of tool descriptions for Gemini.
         Args:
-            include_google_search_tool: If true, will include the Google Search tool.
+            exclude_fields: Any fields that should be excluded from the definitions.
 
         Returns:
 
         """
+
+        exclude_fields = exclude_fields or []
 
         tool_list = []
 
@@ -151,7 +161,7 @@ class ToolLibrary:
                         parameters={
                             "properties": remove_keys(
                                 tool_def.input_properties,
-                                keys_to_remove=["default", "format"]
+                                keys_to_remove=["default", "format"] + exclude_fields
                             ),
                             "required": tool_def.required_parameters,
                             "type": "object"
