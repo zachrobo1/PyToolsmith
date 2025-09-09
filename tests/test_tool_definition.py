@@ -493,3 +493,77 @@ def test_tool_with_complex_type_pydantic_v2(pydantic_company_model):
             }
         },
     }
+
+
+def test_overwrite_input_properties_fields():
+    """Test that overwrite_input_properties_fields correctly replaces nested values"""
+    
+    def simple_func(param1: str, param2: int = 5) -> str:
+        """A simple function for testing overwrites"""
+        return f"{param1}_{param2}"
+
+    # Test overwriting top-level properties
+    tool = ToolDefinition(
+        function=simple_func,
+        overwrite_input_properties_fields={
+            "param1.type": "number",
+            "param1.format": "float",
+            "param2.minimum": 1,
+            "param2.maximum": 100,
+        }
+    )
+
+    schema = tool.build_json_schema()
+    
+    # Verify that overwrites were applied
+    assert schema.input_properties["param1"]["type"] == "number"
+    assert schema.input_properties["param1"]["format"] == "float"
+    assert schema.input_properties["param2"]["minimum"] == 1
+    assert schema.input_properties["param2"]["maximum"] == 100
+    assert schema.input_properties["param2"]["default"] == 5  # Should preserve existing values
+
+
+def test_overwrite_input_properties_fields_nonexistent_paths():
+    """Test that non-existent paths are silently ignored"""
+    
+    def simple_func(param1: str) -> str:
+        return param1
+
+    tool = ToolDefinition(
+        function=simple_func,
+        overwrite_input_properties_fields={
+            "nonexistent.field": "value",
+            "param1.nonexistent": "value", 
+            "param1.type.nested": "value",  # param1.type is string, not dict
+        }
+    )
+
+    # Should not raise an error
+    schema = tool.build_json_schema()
+    
+    # Original schema should be intact
+    assert schema.input_properties["param1"]["type"] == "string"
+    assert "nonexistent" not in schema.input_properties
+
+
+def test_overwrite_input_properties_fields_deep_nesting():
+    """Test overwriting deeply nested properties with pydantic models"""
+    
+    def pydantic_func(contact: PersonInfo) -> str:
+        return contact.first_name
+
+    tool = ToolDefinition(
+        function=pydantic_func,
+        overwrite_input_properties_fields={
+            "contact.properties.first_name.minLength": 2,
+            "contact.properties.last_name.default": "Smith",
+        }
+    )
+
+    schema = tool.build_json_schema()
+
+    print(schema.input_properties)
+
+    # Verify deep nested overwrites
+    assert schema.input_properties["contact"]["properties"]["first_name"]["minLength"] == 2
+    assert schema.input_properties["contact"]["properties"]["last_name"]["default"] == "Smith"
