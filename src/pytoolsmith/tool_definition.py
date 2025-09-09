@@ -51,7 +51,8 @@ class ToolDefinition:
 
     """
 
-    overwrite_input_properties_fields: dict[str, str | dict | list] = field(default_factory=dict)
+    overwrite_input_properties_fields: dict[str, str | dict | list] = \
+        field(default_factory=dict)
     """Overwrite specific field-level definitions on the generated scheam."""
 
     user_message: str | None = None

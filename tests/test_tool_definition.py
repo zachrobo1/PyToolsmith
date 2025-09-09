@@ -520,7 +520,7 @@ def test_overwrite_input_properties_fields():
     assert schema.input_properties["param1"]["format"] == "float"
     assert schema.input_properties["param2"]["minimum"] == 1
     assert schema.input_properties["param2"]["maximum"] == 100
-    assert schema.input_properties["param2"]["default"] == 5  # Should preserve existing values
+    assert schema.input_properties["param2"]["default"] == 5  # Should preserve existing
 
 
 def test_overwrite_input_properties_fields_nonexistent_paths():
@@ -565,5 +565,7 @@ def test_overwrite_input_properties_fields_deep_nesting():
     print(schema.input_properties)
 
     # Verify deep nested overwrites
-    assert schema.input_properties["contact"]["properties"]["first_name"]["minLength"] == 2
-    assert schema.input_properties["contact"]["properties"]["last_name"]["default"] == "Smith"
+    assert (schema.input_properties["contact"]["properties"]["first_name"]["minLength"]
+            == 2)
+    assert (schema.input_properties["contact"]["properties"]["last_name"]["default"]
+            == "Smith")
