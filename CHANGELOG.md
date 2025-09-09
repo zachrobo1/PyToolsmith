@@ -2,6 +2,15 @@
 
 All notable changes to PyToolsmith will be documented in this file.
 
+## 1.0.0 - Sept 8, 2025
+
+Since the library has been stable since May, with this change we are bumping to 1.0.0.
+
+### Added
+
+- Added a `overwrite_input_properties_fields` parameter that can overwrite the input properties on generated
+  definitions.
+
 ## 0.1.16 - May 28, 2025
 
 ### Bug Fixes

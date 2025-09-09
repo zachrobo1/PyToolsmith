@@ -46,8 +46,14 @@ class ToolDefinition:
 
     Examples:
         {"k": {"minimum": 1}} # Set the minimum value of the k parameter to 1
+        
+    DEPRECATED in favor of `overwrite_input_properties_fields`
 
     """
+
+    overwrite_input_properties_fields: dict[str, str | dict | list] = \
+        field(default_factory=dict)
+    """Overwrite specific field-level definitions on the generated scheam."""
 
     user_message: str | None = None
     """
@@ -145,8 +151,29 @@ class ToolDefinition:
             input_properties=self._reformat_pydantic_definitions(param_map),
             description=description,
         )
+
+        # Post process the input properties using the overwrite method
+        self._replace_properties_with_overwritten_values(params.input_properties)
+
         self._schema_cache[var_key] = params
         return params
+
+
+    def _replace_properties_with_overwritten_values(self, props: dict):
+        for path, value_to_replace in self.overwrite_input_properties_fields.items():
+            path_parts = path.split(".")
+            
+            # Navigate to the parent of the target key
+            current = props
+            for part in path_parts[:-1]:
+                if not isinstance(current, dict) or part not in current:
+                    break
+                current = current[part]
+            else:
+                # Add or replace the final key value
+                final_key = path_parts[-1]
+                if isinstance(current, dict):
+                    current[final_key] = value_to_replace
 
     @overload
     def call_tool(self, llm_parameters: dict[str, Any],
