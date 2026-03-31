@@ -26,11 +26,11 @@ BASE_TENANT_ID = uuid.uuid4()
 
 
 def mock_function_database_lookup(
-        tenant_id: uuid.UUID,
-        entity_id: uuid.UUID,
-        latest: bool,
-        k: int = 10,
-        optional_dict: dict[str, str] | None = None,
+    tenant_id: uuid.UUID,
+    entity_id: uuid.UUID,
+    latest: bool,
+    k: int = 10,
+    optional_dict: dict[str, str] | None = None,
 ) -> list[str]:
     """
     Mocks a database query.
@@ -65,44 +65,44 @@ def test_build_tool_parameter():
 
     result = tool.build_json_schema()
     assert (
-            ToolParameters(
-                name="mock_function_database_lookup",
-                description="Mocks a database query. Returns: A list of strings",
-                input_properties={
-                    "entity_id": {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "The entity ID",
-                    },
-                    "latest": {
-                        "type": "boolean",
-                        "description": "If it's latest or not.",
-                    },
-                    "k": {
-                        "type": "integer",
-                        "description": "Number to return. Include some other text, "
-                                       "that will overflow to the "
-                                       "next line. This is a pretty long line that "
-                                       "should be wrapped.",
-                        "default": 10,
-                        "minimum": 1,
-                    },
-                    "optional_dict": {
-                        "anyOf": [{"type": "object"}, {"type": "null"}],
-                        "description": "Optional dictionary to use, just for funsies.",
-                        "default": "null",
-                    },
+        ToolParameters(
+            name="mock_function_database_lookup",
+            description="Mocks a database query. Returns: A list of strings",
+            input_properties={
+                "entity_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": "The entity ID",
                 },
-                required_parameters=["entity_id", "latest"],
-            )
-            == result
+                "latest": {
+                    "type": "boolean",
+                    "description": "If it's latest or not.",
+                },
+                "k": {
+                    "type": "integer",
+                    "description": "Number to return. Include some other text, "
+                    "that will overflow to the "
+                    "next line. This is a pretty long line that "
+                    "should be wrapped.",
+                    "default": 10,
+                    "minimum": 1,
+                },
+                "optional_dict": {
+                    "anyOf": [{"type": "object"}, {"type": "null"}],
+                    "description": "Optional dictionary to use, just for funsies.",
+                    "default": "null",
+                },
+            },
+            required_parameters=["entity_id", "latest"],
+        )
+        == result
     )
 
 
 def _enum_func(
-        ts: datetime,
-        enum_1: TestEnum,
-        enum_2: TestEnum | None = None,
+    ts: datetime,
+    enum_1: TestEnum,
+    enum_2: TestEnum | None = None,
 ) -> str:
     print(f"Its {ts}")
     return str(enum_1 == enum_2)
@@ -112,32 +112,32 @@ def test_build_tool_for_enum():
     tool = ToolDefinition(function=_enum_func)
 
     assert (
-            ToolParameters(
-                name="_enum_func",
-                description="",
-                required_parameters=["ts", "enum_1"],
-                input_properties={
-                    "ts": {
-                        "type": "string",
-                        "format": "date-time",
-                    },
-                    "enum_1": {
-                        "type": "string",
-                        "enum": ["option_a", "option_b", "option_c"],
-                    },
-                    "enum_2": {
-                        "anyOf": [
-                            {
-                                "type": "string",
-                                "enum": ["option_a", "option_b", "option_c"],
-                            },
-                            {"type": "null"},
-                        ],
-                        "default": "null",
-                    },
+        ToolParameters(
+            name="_enum_func",
+            description="",
+            required_parameters=["ts", "enum_1"],
+            input_properties={
+                "ts": {
+                    "type": "string",
+                    "format": "date-time",
                 },
-            )
-            == tool.build_json_schema()
+                "enum_1": {
+                    "type": "string",
+                    "enum": ["option_a", "option_b", "option_c"],
+                },
+                "enum_2": {
+                    "anyOf": [
+                        {
+                            "type": "string",
+                            "enum": ["option_a", "option_b", "option_c"],
+                        },
+                        {"type": "null"},
+                    ],
+                    "default": "null",
+                },
+            },
+        )
+        == tool.build_json_schema()
     )
 
 
@@ -171,8 +171,8 @@ def test_build_tool_for_literal():
 
 
 def _pydantic_func(
-        contact_info: PersonInfo,
-        contact_info_2: PersonInfo | None = None,
+    contact_info: PersonInfo,
+    contact_info_2: PersonInfo | None = None,
 ):
     print(f"The person's name is {contact_info.first_name} {contact_info.last_name}")
     print(
@@ -258,39 +258,39 @@ def test_build_tool_for_list_of_items():
     result = tool.build_json_schema()
 
     assert (
-            ToolParameters(
-                name="_list_of_items_func",
-                input_properties={
-                    "int_list": {"type": "array", "items": {"type": "integer"}},
-                    "model_list": {
-                        "type": "array",
-                        "items": {
-                            "type": "object",
-                            "title": "PersonInfo",
-                            "properties": {
-                                "first_name": {
-                                    "title": "First Name",
-                                    "type": "string",
-                                },
-                                "last_name": {
-                                    "title": "Last Name",
-                                    "anyOf": [
-                                        {
-                                            "type": "string",
-                                        },
-                                        {"type": "null"},
-                                    ],
-                                    "default": None,
-                                },
+        ToolParameters(
+            name="_list_of_items_func",
+            input_properties={
+                "int_list": {"type": "array", "items": {"type": "integer"}},
+                "model_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "title": "PersonInfo",
+                        "properties": {
+                            "first_name": {
+                                "title": "First Name",
+                                "type": "string",
                             },
-                            "required": ["first_name"],
+                            "last_name": {
+                                "title": "Last Name",
+                                "anyOf": [
+                                    {
+                                        "type": "string",
+                                    },
+                                    {"type": "null"},
+                                ],
+                                "default": None,
+                            },
                         },
+                        "required": ["first_name"],
                     },
                 },
-                required_parameters=["int_list", "model_list"],
-                description="",
-            )
-            == result
+            },
+            required_parameters=["int_list", "model_list"],
+            description="",
+        )
+        == result
     )
 
 
@@ -313,13 +313,8 @@ def test_calling_tool():
     Tests calling the tool to make sure it works.
     In the future, can expand to ensure serialization works as expected.
     """
-    injected_params = {
-        "tenant_id": "1234"
-    }
-    llm_params = {
-        "db_name": "psql_db",
-        "sql": "SELECT * FROM table_name"
-    }
+    injected_params = {"tenant_id": "1234"}
+    llm_params = {"db_name": "psql_db", "sql": "SELECT * FROM table_name"}
 
     def checking_function(tenant_id: str, db_name: str, sql: str):
         assert tenant_id == "1234"
@@ -327,23 +322,29 @@ def test_calling_tool():
         assert sql == "SELECT * FROM table_name"
         return True
 
-    tool = ToolDefinition(function=checking_function, injected_parameters=["tenant_id"],
-                          user_message="Checking function using command: `{{sql}}`")
+    tool = ToolDefinition(
+        function=checking_function,
+        injected_parameters=["tenant_id"],
+        user_message="Checking function using command: `{{sql}}`",
+        pause_on_call=True,
+    )
 
     res_no_message = tool.call_tool(
-        llm_parameters=llm_params,
-        hardset_parameters=injected_params
+        llm_parameters=llm_params, hardset_parameters=injected_params
     )
     assert res_no_message is True
+
+    assert tool.pause_on_call is True
 
     res_w_message = tool.call_tool(
         llm_parameters=llm_params,
         hardset_parameters=injected_params,
-        include_message=True
+        include_message=True,
     )
-    assert ((True,
-             "Checking function using command: `SELECT * FROM table_name`") ==
-            res_w_message)
+    assert (
+        True,
+        "Checking function using command: `SELECT * FROM table_name`",
+    ) == res_w_message
 
 
 def test_build_tool_with_template_variables():
@@ -352,8 +353,8 @@ def test_build_tool_with_template_variables():
     """
 
     def function_with_template(
-            param1: str,
-            param2: int,
+        param1: str,
+        param2: int,
     ) -> str:
         """
         A function with template variables in the docstring. {{VALUE}}
@@ -383,8 +384,9 @@ def test_build_tool_with_template_variables():
     assert "substituted" in schema_with_vars.input_properties["param1"]["description"]
     assert "42" in schema_with_vars.input_properties["param2"]["description"]
     assert "{{VALUE}}" not in schema_with_vars.description
-    assert "{{VARIABLE}}" not in schema_with_vars.input_properties["param1"][
-        "description"]
+    assert (
+        "{{VARIABLE}}" not in schema_with_vars.input_properties["param1"]["description"]
+    )
     assert "{{VALUE}}" not in schema_with_vars.input_properties["param2"]["description"]
 
     # Check that function description also gets substituted
@@ -399,42 +401,24 @@ def test_reformat_pydantic_definitions():
     # Input object with definitions scattered throughout
     input_data = {
         "name": "test_schema",
-        "definitions": {
-            "TopLevel": {"type": "object"}
-        },
+        "definitions": {"TopLevel": {"type": "object"}},
         "nested": {
-            "definitions": {
-                "NestedModel": {"type": "string"}
-            },
-            "data": {
-                "$ref": "#/definitions/NestedModel"
-            }
+            "definitions": {"NestedModel": {"type": "string"}},
+            "data": {"$ref": "#/definitions/NestedModel"},
         },
-        "deep": {
-            "very": {
-                "definitions": {
-                    "DeepModel": {"type": "number"}
-                }
-            }
-        }
+        "deep": {"very": {"definitions": {"DeepModel": {"type": "number"}}}},
     }
 
     # Expected output with all definitions at top level
     expected_output = {
         "name": "test_schema",
-        "nested": {
-            "data": {
-                "$ref": "#/definitions/NestedModel"
-            }
-        },
-        "deep": {
-            "very": {}
-        },
+        "nested": {"data": {"$ref": "#/definitions/NestedModel"}},
+        "deep": {"very": {}},
         "definitions": {
             "TopLevel": {"type": "object"},
             "NestedModel": {"type": "string"},
-            "DeepModel": {"type": "number"}
-        }
+            "DeepModel": {"type": "number"},
+        },
     }
 
     result = ToolDefinition._reformat_pydantic_definitions(
@@ -452,52 +436,47 @@ def test_tool_with_complex_type_pydantic_v2(pydantic_company_model):
     schema = tool.build_json_schema()
 
     assert schema.input_properties == {
-        'company': {
-            'type': 'object',
-            'properties': {
-                'name': {
-                    'title': 'Name',
-                    'type': 'string'
+        "company": {
+            "type": "object",
+            "properties": {
+                "name": {"title": "Name", "type": "string"},
+                "headquarters": {"$ref": "#/definitions/Address"},
+                "employees": {
+                    "items": {"$ref": "#/definitions/User"},
+                    "title": "Employees",
+                    "type": "array",
                 },
-                'headquarters': {
-                    '$ref': '#/definitions/Address'
-                },
-                'employees': {
-                    'items': {
-                        '$ref': '#/definitions/User'
-                    },
-                    'title': 'Employees',
-                    'type': 'array'
-                }
             },
-            'required': ['name', 'headquarters', 'employees'],
-            'title': 'Company'
+            "required": ["name", "headquarters", "employees"],
+            "title": "Company",
         },
-        'definitions': {
-            'Address': {
-                'properties': {
-                    'street': {'title': 'Street', 'type': 'string'},
-                    'city': {'title': 'City', 'type': 'string'},
-                    'zip_code': {'title': 'Zip Code', 'type': 'string'}},
-                'required': ['street', 'city', 'zip_code'],
-                'title': 'Address',
-                'type': 'object'
+        "definitions": {
+            "Address": {
+                "properties": {
+                    "street": {"title": "Street", "type": "string"},
+                    "city": {"title": "City", "type": "string"},
+                    "zip_code": {"title": "Zip Code", "type": "string"},
+                },
+                "required": ["street", "city", "zip_code"],
+                "title": "Address",
+                "type": "object",
             },
-            'User': {
-                'properties': {
-                    'name': {'title': 'Name', 'type': 'string'},
-                    'address': {'$ref': '#/definitions/Address'}},
-                'required': ['name', 'address'],
-                'title': 'User',
-                'type': 'object'
-            }
+            "User": {
+                "properties": {
+                    "name": {"title": "Name", "type": "string"},
+                    "address": {"$ref": "#/definitions/Address"},
+                },
+                "required": ["name", "address"],
+                "title": "User",
+                "type": "object",
+            },
         },
     }
 
 
 def test_overwrite_input_properties_fields():
     """Test that overwrite_input_properties_fields correctly replaces nested values"""
-    
+
     def simple_func(param1: str, param2: int = 5) -> str:
         """A simple function for testing overwrites"""
         return f"{param1}_{param2}"
@@ -510,11 +489,11 @@ def test_overwrite_input_properties_fields():
             "param1.format": "float",
             "param2.minimum": 1,
             "param2.maximum": 100,
-        }
+        },
     )
 
     schema = tool.build_json_schema()
-    
+
     # Verify that overwrites were applied
     assert schema.input_properties["param1"]["type"] == "number"
     assert schema.input_properties["param1"]["format"] == "float"
@@ -525,7 +504,7 @@ def test_overwrite_input_properties_fields():
 
 def test_overwrite_input_properties_fields_nonexistent_paths():
     """Test that non-existent paths are silently ignored"""
-    
+
     def simple_func(param1: str) -> str:
         return param1
 
@@ -533,14 +512,14 @@ def test_overwrite_input_properties_fields_nonexistent_paths():
         function=simple_func,
         overwrite_input_properties_fields={
             "nonexistent.field": "value",
-            "param1.nonexistent": "value", 
+            "param1.nonexistent": "value",
             "param1.type.nested": "value",  # param1.type is string, not dict
-        }
+        },
     )
 
     # Should not raise an error
     schema = tool.build_json_schema()
-    
+
     # Original schema should be intact
     assert schema.input_properties["param1"]["type"] == "string"
     assert "nonexistent" not in schema.input_properties
@@ -548,7 +527,7 @@ def test_overwrite_input_properties_fields_nonexistent_paths():
 
 def test_overwrite_input_properties_fields_deep_nesting():
     """Test overwriting deeply nested properties with pydantic models"""
-    
+
     def pydantic_func(contact: PersonInfo) -> str:
         return contact.first_name
 
@@ -557,7 +536,7 @@ def test_overwrite_input_properties_fields_deep_nesting():
         overwrite_input_properties_fields={
             "contact.properties.first_name.minLength": 2,
             "contact.properties.last_name.default": "Smith",
-        }
+        },
     )
 
     schema = tool.build_json_schema()
@@ -565,7 +544,10 @@ def test_overwrite_input_properties_fields_deep_nesting():
     print(schema.input_properties)
 
     # Verify deep nested overwrites
-    assert (schema.input_properties["contact"]["properties"]["first_name"]["minLength"]
-            == 2)
-    assert (schema.input_properties["contact"]["properties"]["last_name"]["default"]
-            == "Smith")
+    assert (
+        schema.input_properties["contact"]["properties"]["first_name"]["minLength"] == 2
+    )
+    assert (
+        schema.input_properties["contact"]["properties"]["last_name"]["default"]
+        == "Smith"
+    )

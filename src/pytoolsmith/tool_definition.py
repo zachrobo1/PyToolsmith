@@ -51,8 +51,9 @@ class ToolDefinition:
 
     """
 
-    overwrite_input_properties_fields: dict[str, str | dict | list] = \
-        field(default_factory=dict)
+    overwrite_input_properties_fields: dict[str, str | dict | list] = field(
+        default_factory=dict
+    )
     """Overwrite specific field-level definitions on the generated scheam."""
 
     user_message: str | None = None
@@ -68,8 +69,14 @@ class ToolDefinition:
     Can be used as a way to filter which tools the LLM gets using `subset`.
     """
 
-    _schema_cache: dict[str, ToolParameters] = field(default_factory=dict, init=False,
-                                                     repr=False)
+    pause_on_call: bool = False
+    """
+    A setting that can be used to stop execution when the tool is called.
+    """
+
+    _schema_cache: dict[str, ToolParameters] = field(
+        default_factory=dict, init=False, repr=False
+    )
     """Cached versions of the schema for the tool."""
 
     _tool_library: "ToolLibrary | None" = field(default=None, init=False, repr=False)
@@ -94,12 +101,12 @@ class ToolDefinition:
         self._tool_library = tool_library
 
     def build_json_schema(
-            self, schema_vals: dict[str, str] | None = None
+        self, schema_vals: dict[str, str] | None = None
     ) -> ToolParameters:
         """
         Builds a ToolParameters object using the values and the variables specified.
         Args:
-            schema_vals: A dictionary of variables and values to use when 
+            schema_vals: A dictionary of variables and values to use when
             building the schema. Substitutes them out using mustache syntax.
         """
 
@@ -109,10 +116,12 @@ class ToolDefinition:
         for var, value in schema_vals.items():
             if not isinstance(value, str):
                 raise TypeError(
-                    f"Expected a string value for {var}, but got {type(value)}")
+                    f"Expected a string value for {var}, but got {type(value)}"
+                )
             if not isinstance(var, str):
                 raise TypeError(
-                    f"Expected a string variable name for {var}, but got {type(var)}")
+                    f"Expected a string variable name for {var}, but got {type(var)}"
+                )
 
         # use a stringified version of the vars dict as a key to cache the schema
         var_key = str(schema_vals)
@@ -158,11 +167,10 @@ class ToolDefinition:
         self._schema_cache[var_key] = params
         return params
 
-
     def _replace_properties_with_overwritten_values(self, props: dict):
         for path, value_to_replace in self.overwrite_input_properties_fields.items():
             path_parts = path.split(".")
-            
+
             # Navigate to the parent of the target key
             current = props
             for part in path_parts[:-1]:
@@ -176,33 +184,37 @@ class ToolDefinition:
                     current[final_key] = value_to_replace
 
     @overload
-    def call_tool(self, llm_parameters: dict[str, Any],
-                  hardset_parameters: dict[str, Any],
-                  include_message: Literal[False] = False) -> Any:
-        ...
+    def call_tool(
+        self,
+        llm_parameters: dict[str, Any],
+        hardset_parameters: dict[str, Any],
+        include_message: Literal[False] = False,
+    ) -> Any: ...
 
     @overload
-    def call_tool(self, llm_parameters: dict[str, Any],
-                  hardset_parameters: dict[str, Any],
-                  include_message: Literal[True] = True) -> tuple[Any, str | None]:
-        ...
+    def call_tool(
+        self,
+        llm_parameters: dict[str, Any],
+        hardset_parameters: dict[str, Any],
+        include_message: Literal[True] = True,
+    ) -> tuple[Any, str | None]: ...
 
     def call_tool(
-            self,
-            llm_parameters: dict[str, Any],
-            hardset_parameters: dict[str, Any],
-            include_message: bool = False
+        self,
+        llm_parameters: dict[str, Any],
+        hardset_parameters: dict[str, Any],
+        include_message: bool = False,
     ) -> Any | tuple[Any, str | None]:
         """
-        Calls the tool with the given parameters. 
+        Calls the tool with the given parameters.
         If `include_message` is True, will also return a user message.
         """
-        # So, for the batch tool, we need to change the hard-set 
+        # So, for the batch tool, we need to change the hard-set
         # parameters to include the tool library.
         if self.name == "batch_tool":
             hardset_parameters = {
                 "tool_library": self._tool_library,
-                "hardset_parameters": hardset_parameters
+                "hardset_parameters": hardset_parameters,
             }
 
         # Merge the library parameters with the LLM parameters
@@ -216,8 +228,9 @@ class ToolDefinition:
             return result, message
         return result
 
-    def format_message_for_call(self, llm_parameters: dict[str, Any],
-                                hardset_parameters: dict[str, Any]) -> str | None:
+    def format_message_for_call(
+        self, llm_parameters: dict[str, Any], hardset_parameters: dict[str, Any]
+    ) -> str | None:
         """Formats the user message for the tool call."""
         if self.name == "batch_tool":
             # Handle the batch tool differently:
@@ -226,7 +239,7 @@ class ToolDefinition:
                 tool = self._tool_library.get_tool_from_name(invocation["name"])
                 msg = tool.format_message_for_call(
                     llm_parameters=serialize_batch_tool_args(invocation["arguments"]),
-                    hardset_parameters=hardset_parameters
+                    hardset_parameters=hardset_parameters,
                 )
                 if msg:
                     msgs.append(msg)
@@ -240,8 +253,9 @@ class ToolDefinition:
                 message = message.replace("{{" + key + "}}", str(value))
         return message
 
-    def _combine_parameters(self, llm_parameters: dict[str, Any],
-                            hardset_parameters: dict[str, Any]) -> dict[str, Any]:
+    def _combine_parameters(
+        self, llm_parameters: dict[str, Any], hardset_parameters: dict[str, Any]
+    ) -> dict[str, Any]:
         """Merge the library parameters with the LLM parameters"""
         parameters = {}
         for k, v in llm_parameters.items():
@@ -251,12 +265,12 @@ class ToolDefinition:
         return parameters
 
     def _get_type_for_parameter(
-            self,
-            param_name: str,
-            param_info: inspect.Parameter,
-            param_desc_map: dict[str, str],
-            additional_parameters: dict[str, Any],
-            is_array_item: bool = False,
+        self,
+        param_name: str,
+        param_info: inspect.Parameter,
+        param_desc_map: dict[str, str],
+        additional_parameters: dict[str, Any],
+        is_array_item: bool = False,
     ) -> tuple[dict, bool]:
         is_required = False
 
@@ -377,7 +391,7 @@ class ToolDefinition:
         current_arg = None
         current_description = []
 
-        for line in lines[args_start + 1:]:
+        for line in lines[args_start + 1 :]:
             stripped_line = line.strip()
             # Check if we've hit another section (non-indented line ending with ':')
             if stripped_line.endswith(":") and not line.startswith(" "):
@@ -485,7 +499,7 @@ class ToolDefinition:
     @staticmethod
     def _create_default_value(default_value: Any) -> str | None:
         """
-        Tries to create a default value from the given default value. 
+        Tries to create a default value from the given default value.
         If it can't, returns None.
         """
 
@@ -548,7 +562,8 @@ class ToolDefinition:
 
                 # Recursively process all values
                 for key, value in list(
-                        obj.items()):  # Use list() to avoid changes during iteration
+                    obj.items()
+                ):  # Use list() to avoid changes during iteration
                     _collect_definitions(value, f"{path}.{key}" if path else key)
 
             elif isinstance(obj, list):
